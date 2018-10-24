@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+</head>
+<body>
+    <h2>Registration</h2>
+
+    <!--/*@thymesVar id="model" type="pl.rosa.mapeditor.viewmodels.RegistrationViewModel"*/-->
+    <form action="#" th:action="@{/register}" method="post" th:object="${model}">
+        <div style="color: red" th:if="${#fields.hasErrors()}">
+            <strong>There were errors in the form:</strong>
+            <ul>
+                <li th:each="e : ${#fields.allErrors()}" th:text="${e}"></li>
+            </ul>
+        </div>
+
+
+        <table>
+            <tr>
+                <th>Email: </th>
+                <td> <input name="email" type="text" th:field="*{email}"   title="email"/></td>
+            </tr>
+            <tr>
+                <th>Name: </th>
+                <td> <input name="email" type="text" th:field="*{name}"   title="name"/></td>
+            </tr>
+            <tr>
+                <th>Password: </th>
+                <td> <input name="email" type="password" th:field="*{password}"   title="password"/></td>
+            </tr>
+            <tr>
+                <th>Repeat password: </th>
+                <td> <input name="email" type="password" th:field="*{repeatPassword}"   title="repeatPassword"/></td>
+            </tr>
+            <tr>
+                <th><button type="submit" >Register</button></th>
+            </tr>
+
+
+        </table>
+    </form>
+</body>
+</html>
