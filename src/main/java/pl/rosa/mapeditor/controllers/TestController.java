@@ -1,15 +1,16 @@
 package pl.rosa.mapeditor.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.repositories.AppUserRepository;
 
 import java.util.Optional;
 
-@RestController
+@Controller
 public class TestController {
 
     final private AppUserRepository appUserRepository;
@@ -24,6 +25,7 @@ public class TestController {
         return user.getId() + ": " + user.getEmail() + " " + user.getName() + ".";
     }
 
+    @ResponseBody
     @RequestMapping("/test/user/{id}")
     public String returnUser(@PathVariable Long id){
         Optional<AppUser> userOp = appUserRepository.findById(id);
@@ -35,6 +37,7 @@ public class TestController {
     }
 
     @RequestMapping("/test/username/{name}")
+    @ResponseBody
     public String returnUser(@PathVariable String name){
         AppUser user = appUserRepository.findByName(name);
         if(user == null)
@@ -42,4 +45,8 @@ public class TestController {
         return userToString(user);
     }
 
+    @RequestMapping(value = "/test/login")
+    public String loginForm(){
+        return "login";
+    }
 }

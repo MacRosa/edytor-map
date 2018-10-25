@@ -22,7 +22,7 @@ public class AppUserController {
         this.appUserService = appUserService;
     }
 
-    @RequestMapping
+    @RequestMapping(value = "/register", method = RequestMethod.GET)
     public ModelAndView register(){
 
         return new ModelAndView("register","model",new RegistrationViewModel());
