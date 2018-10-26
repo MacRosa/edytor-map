@@ -1,6 +1,9 @@
 package pl.rosa.mapeditor.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.rosa.mapeditor.models.AppUser;
@@ -52,5 +55,10 @@ public class AppUserService {
         appUser.setName(model.getName());
         appUser.setPassword(passwordEncoder.encode(model.getPassword()));
         appUserRepository.save(appUser);
+    }
+
+    public boolean isUserLoggedIn(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return !(auth instanceof AnonymousAuthenticationToken);
     }
 }

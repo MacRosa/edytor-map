@@ -45,8 +45,5 @@ public class TestController {
         return userToString(user);
     }
 
-    @RequestMapping(value = "/test/login")
-    public String loginForm(){
-        return "login";
-    }
+
 }
