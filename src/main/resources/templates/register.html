@@ -1,45 +1,84 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Registration</title>
-</head>
-<body>
-    <h2>Registration</h2>
+    <head>
+        <!--suppress HtmlUnknownTag -->
+        <div th:replace="/fragments/styles :: styles"></div>
+        <meta charset="UTF-8">
+        <title>Registration</title>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Registration</h2>
+            <!--/*@thymesVar id="model" type="pl.rosa.mapeditor.viewmodels.RegistrationViewModel"*/-->
+            <form action="#" th:action="@{/register}" method="post" th:object="${model}" class="form-horizontal">
+                <div class="alert alert-danger" th:if="${#fields.hasErrors()}">
+                    <strong>There were errors in the form!</strong>
+                    <ul>
+                        <li th:each="e : ${#fields.errors('${model}')}" th:text="${e}"></li>
+                    </ul>
+                </div>
 
-    <!--/*@thymesVar id="model" type="pl.rosa.mapeditor.viewmodels.RegistrationViewModel"*/-->
-    <form action="#" th:action="@{/register}" method="post" th:object="${model}">
-        <div style="color: red" th:if="${#fields.hasErrors()}">
-            <strong>There were errors in the form:</strong>
-            <ul>
-                <li th:each="e : ${#fields.allErrors()}" th:text="${e}"></li>
-            </ul>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Email: </label>
+                    <div class="col-sm-10">
+                        <input class="form-control" name="email" th:field="*{email}" type="text" title="email"/>
+                        <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Name: </label>
+                    <div class="col-sm-10">
+                        <input class="form-control" name="name" th:field="*{name}" type="text" title="name"/>
+                        <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Password: </label>
+                    <div class="col-sm-10">
+                        <input class="form-control" name="password" th:field="*{password}" type="password" title="password"/>
+                        <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Repeat password: </label>
+                    <div class="col-sm-10">
+                        <input class="form-control" name="repeatPassword" type="password" title="repeatPassword"/>
+                        <span class="text-danger" th:if="${#fields.hasErrors('repeatPassword')}" th:errors="*{repeatPassword}"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit">Register</button>
+                </div>
+
+                <!--  <table>
+                      <tr>
+                          <th>Email: </th>
+                          <td> <input name="email" type="text" th:field="*{email}"   title="email"/></td>
+                      </tr>
+                      <tr>
+                          <th>Name: </th>
+                          <td> <input name="email" type="text" th:field="*{name}"   title="name"/></td>
+                      </tr>
+                      <tr>
+                          <th>Password: </th>
+                          <td> <input name="email" type="password" th:field="*{password}"   title="password"/></td>
+                      </tr>
+                      <tr>
+                          <th>Repeat password: </th>
+                          <td> <input name="email" type="password" th:field="*{repeatPassword}"   title="repeatPassword"/></td>
+                      </tr>
+                      <tr>
+                          <th><button type="submit" >Register</button></th>
+                      </tr>
+
+
+                  </table>-->
+            </form>
         </div>
-
-
-        <table>
-            <tr>
-                <th>Email: </th>
-                <td> <input name="email" type="text" th:field="*{email}"   title="email"/></td>
-            </tr>
-            <tr>
-                <th>Name: </th>
-                <td> <input name="email" type="text" th:field="*{name}"   title="name"/></td>
-            </tr>
-            <tr>
-                <th>Password: </th>
-                <td> <input name="email" type="password" th:field="*{password}"   title="password"/></td>
-            </tr>
-            <tr>
-                <th>Repeat password: </th>
-                <td> <input name="email" type="password" th:field="*{repeatPassword}"   title="repeatPassword"/></td>
-            </tr>
-            <tr>
-                <th><button type="submit" >Register</button></th>
-            </tr>
-
-
-        </table>
-    </form>
-</body>
+    </body>
+    <div th:replace="/fragments/scripts :: scripts"></div>
 </html>

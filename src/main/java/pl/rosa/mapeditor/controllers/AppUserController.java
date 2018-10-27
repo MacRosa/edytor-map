@@ -40,10 +40,10 @@ public class AppUserController {
 
         if(!appUserService.validateUser(model)){
             if(appUserService.isEmailAlreadyInUse()){
-                result.reject("Validation.emailInUse","Email is already in use.");
+                result.rejectValue("email","Validation.emailInUse","Email is already in use.");
             }
             if(appUserService.isNameAlreadyInUse()){
-                result.reject("Validation.nameInUse","Name is already in use.");
+                result.rejectValue("name","Validation.nameInUse","Name is already in use.");
             }
         }
 
