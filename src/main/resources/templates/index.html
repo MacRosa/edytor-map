@@ -1,13 +1,39 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
+    <!--suppress HtmlUnknownTag -->
+    <div th:replace="/fragments/styles :: styles"></div>
     <meta charset="UTF-8">
     <title>Map Editor</title>
 </head>
-<body>
-    <p>Welcome map editor app!</p>
-    <form action="#" th:action="@{/logout}" method="POST">
-        <button type="submit" >Logout</button>
-    </form>
-</body>
+    <body>
+
+        <div class="container">
+            <div class="jumbotron">
+                <div class="container">
+                    <h1>Welcome to map editor!</h1>
+                    <p class="lead">Start creating your own maps.</p>
+                </div>
+
+                <hr class="my-4"/>
+
+                <div class="container" sec:authorize="isAnonymous()">
+                    <p>You are not logged in. Please sign in or create new account.</p>
+                    <a class="btn btn-primary" th:href="@{/login}">Log in</a>
+                    <a class="btn btn-secondary" th:href="@{/register}">Register</a>
+
+                </div>
+
+                <form action="#" th:action="@{/logout}"  sec:authorize="isAuthenticated()" method="POST">
+                    <p>Welcome, user!</p>
+                    <button class="btn btn-primary" type="submit" >Logout</button>
+                </form>
+
+            </div>
+        </div>
+
+    </body>
+    <div th:replace="/fragments/scripts :: scripts"></div>
 </html>
