@@ -27,7 +27,7 @@
                 </div>
 
                 <form action="#" th:action="@{/logout}"  sec:authorize="isAuthenticated()" method="POST">
-                    <p>Welcome, user!</p>
+                    <p>Welcome, <span th:text="${@loggedUser.getUserName()}" >user</span>!</p>
                     <button class="btn btn-primary" type="submit" >Logout</button>
                 </form>
 
