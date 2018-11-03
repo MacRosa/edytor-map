@@ -16,7 +16,35 @@
         </div>
         <div class="container">
             <h2>Owned maps</h2>
-            <p>This website is under construction.</p>
+            <!--/*@thymesVar id="ownedmaps" type="java.util.List<pl.rosa.mapeditor.models.Map>"*/-->
+            <div th:unless="${ownedmaps.isEmpty()}" class="container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col"> Name </th>
+                            <th scope="col"> Visibility</th>
+                            <th scope="col"> Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="map : ${ownedmaps}">
+                            <td th:text="${map.name}" ></td>
+                            <td th:text="${map.visibility}"></td>
+                            <td th:text="${map.description}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${ownedmaps.isEmpty()}">
+                <p>List is empty.</p>
+            </div>
+            <div class="container">
+                <a class="btn btn-primary" th:href="@{/map/add}">Create new map</a>
+            </div>
+        </div>
+        <div class="container mt-5">
+            <h2> Shared maps</h2>
+            <p> This site is under contruction</p>
         </div>
     </body>
     <div th:replace="/fragments/scripts :: scripts"></div>

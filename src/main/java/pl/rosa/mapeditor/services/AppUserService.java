@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.rosa.mapeditor.login.AppUserLogin;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.repositories.AppUserRepository;
 import pl.rosa.mapeditor.viewmodels.RegistrationViewModel;
@@ -60,5 +62,10 @@ public class AppUserService {
     public boolean isUserLoggedIn(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return !(auth instanceof AnonymousAuthenticationToken);
+    }
+
+    @Transactional
+    public AppUser getAppUser(AppUserLogin appUserLogin){
+        return  appUserRepository.findById(appUserLogin.getAppUser().getId()).orElse(null);
     }
 }
