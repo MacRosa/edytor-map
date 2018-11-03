@@ -18,7 +18,7 @@ public class LoggedUser {
         this.appUserService = appUserService;
     }
 
-    private AppUserLogin getLoggedUser(){
+    public AppUserLogin getLoggedUser(){
         return (AppUserLogin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
