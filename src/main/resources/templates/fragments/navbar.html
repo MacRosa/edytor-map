@@ -8,6 +8,7 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            <!--suppress XmlDuplicatedId -->
             <div class="navbar-collapse collapse order-1" id="navbarContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
@@ -15,7 +16,7 @@
                     </li>
                     <div sec:authorize="isAuthenticated()">
                         <li class="nav-item">
-                            <a class="nav-link" href="#">My maps</a>
+                            <a class="nav-link" th:href="@{/map/list}">My maps</a>
                         </li>
                     </div>
                 </ul>

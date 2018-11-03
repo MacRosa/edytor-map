@@ -1,6 +1,7 @@
 package pl.rosa.mapeditor.models;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "appuser")
@@ -43,5 +44,16 @@ public class AppUser {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @OneToMany(mappedBy = "owner",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private List<Map> ownedMaps;
+
+    public List<Map> getOwnedMaps() {
+        return ownedMaps;
+    }
+
+    public void setOwnedMaps(List<Map> ownedMaps) {
+        this.ownedMaps = ownedMaps;
     }
 }
