@@ -9,8 +9,14 @@
     <body>
         <div th:replace="/fragments/navbar :: navbar" ></div>
         <div class="container mt-5">
-            <h2>My maps</h2>
-            <p>This site is under construction.</p>
+            <!--/*@thymesVar id="mapadded" type="boolean"*/-->
+            <div class="alert alert-success" th:if="${mapadded}">
+                New map successfully added.
+            </div>
+        </div>
+        <div class="container">
+            <h2>Owned maps</h2>
+            <p>This website is under construction.</p>
         </div>
     </body>
     <div th:replace="/fragments/scripts :: scripts"></div>
