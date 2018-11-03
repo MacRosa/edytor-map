@@ -1,5 +1,7 @@
 package pl.rosa.mapeditor.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -47,6 +49,7 @@ public class AppUser {
     }
 
     @OneToMany(mappedBy = "owner",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Map> ownedMaps;
 
     public List<Map> getOwnedMaps() {

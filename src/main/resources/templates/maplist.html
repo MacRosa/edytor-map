@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <!--suppress HtmlUnknownTag -->
     <div th:replace="/fragments/styles :: styles"></div>
+    <link  rel="stylesheet" href="../static/css/jasny-bootstrap.css" th:href="@{/css/jasny-bootstrap.css}"/>
     <title>My maps</title>
 </head>
     <body>
@@ -18,7 +19,7 @@
             <h2>Owned maps</h2>
             <!--/*@thymesVar id="ownedmaps" type="java.util.List<pl.rosa.mapeditor.models.Map>"*/-->
             <div th:unless="${ownedmaps.isEmpty()}" class="container">
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
                         <tr>
                             <th scope="col"> Name </th>
@@ -26,9 +27,12 @@
                             <th scope="col"> Description</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody data-link="row" class="rowlink">
                         <tr th:each="map : ${ownedmaps}">
-                            <td th:text="${map.name}" ></td>
+                            <td>
+                                <span th:text="${map.name}"></span>
+                                <a th:href="@{/map/show/{map_id}(map_id=${map.id})}"> </a>
+                            </td>
                             <td th:text="${map.visibility}"></td>
                             <td th:text="${map.description}"></td>
                         </tr>
@@ -48,4 +52,6 @@
         </div>
     </body>
     <div th:replace="/fragments/scripts :: scripts"></div>
+    <script th:src="@{/js/jasny-bootstrap.js}"></script>
+
 </html>

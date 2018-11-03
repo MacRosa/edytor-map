@@ -1,5 +1,7 @@
 package pl.rosa.mapeditor.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 /**
@@ -15,8 +17,9 @@ public class Map {
     private String description;
     private String visibility;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
+    @JsonIgnore
     private AppUser owner;
 
     public long getId() {

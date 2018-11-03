@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.rosa.mapeditor.exceptions.AppUserNotLoggedInException;
+import pl.rosa.mapeditor.exceptions.MapNotFoundException;
+import pl.rosa.mapeditor.exceptions.NoAccessToMapException;
 import pl.rosa.mapeditor.login.LoggedUser;
 import pl.rosa.mapeditor.models.AppUser;
+import pl.rosa.mapeditor.models.Map;
 import pl.rosa.mapeditor.services.AppUserService;
 import pl.rosa.mapeditor.services.MapService;
 import pl.rosa.mapeditor.viewmodels.MapViewModel;
@@ -71,8 +74,18 @@ public class MapController {
 
 
     @GetMapping("/map/show/{id}")
-    @ResponseBody
-    public String getMap(@PathVariable("id")Long id){
-        return "work in progress";
+    public ModelAndView getMap(@PathVariable("id")Long id){
+        ModelAndView modelAndView = new ModelAndView("showmap");
+        modelAndView.addObject("notfound",false);
+        modelAndView.addObject("noaccess",false);
+        try{
+            Map map = mapService.getMap(id);
+            modelAndView.addObject("model",map);
+        }catch(MapNotFoundException ex){
+            modelAndView.addObject("notfound",true);
+        }catch(NoAccessToMapException ex){
+            modelAndView.addObject("noaccess",true);
+        }
+        return modelAndView;
     }
 }
