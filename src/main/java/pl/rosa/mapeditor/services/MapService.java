@@ -11,8 +11,6 @@ import pl.rosa.mapeditor.models.Map;
 import pl.rosa.mapeditor.repositories.MapRepository;
 import pl.rosa.mapeditor.viewmodels.MapViewModel;
 
-import java.util.Optional;
-
 /**
  * Created by Maciej on 2018-11-03 10:20
  */
@@ -45,14 +43,14 @@ public class MapService {
     }
 
     public Map getMap(Long id) throws MapNotFoundException,NoAccessToMapException {
-        Map opmap = mapRepository.findById(id).orElseThrow(MapNotFoundException::new);
-        if(!opmap.getVisibility().matches("nonpublic|public")){
+        Map map = mapRepository.findById(id).orElseThrow(MapNotFoundException::new);
+        if(!map.getVisibility().matches("nonpublic|public")){
             if(!userService.isUserLoggedIn())
                 throw new NoAccessToMapException();
             AppUser user = loggedUser.getLoggedUser().getAppUser();
-            if(!user.getId().equals(opmap.getOwner().getId()))
+            if(!user.getId().equals(map.getOwner().getId()))
                 throw new NoAccessToMapException();
         }
-        return opmap;
+        return map;
     }
 }
