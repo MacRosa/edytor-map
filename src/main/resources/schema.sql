@@ -19,3 +19,5 @@ CREATE TABLE IF NOT EXISTS map_access(
   map_id INTEGER REFERENCES map(id) NOT NULL,
   app_user_id INTEGER REFERENCES appuser(id) NOT NULL
 );
+
+ALTER TABLE map ADD COLUMN IF NOT EXISTS  document_id INTEGER;
