@@ -24,4 +24,4 @@
 /nbdist/
 /.nb-gradle/
 
-TestController.java
+src/main/java/pl/rosa/mapeditor/controllers/TestController.java
