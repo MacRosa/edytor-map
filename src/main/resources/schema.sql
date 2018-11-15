@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS map(
   name text NOT NULL,
   description text,
   visibility text NOT NULL,
+  document_id text,
   owner_id INTEGER REFERENCES appuser(id) NOT NULL
 );
 
@@ -19,5 +20,3 @@ CREATE TABLE IF NOT EXISTS map_access(
   map_id INTEGER REFERENCES map(id) NOT NULL,
   app_user_id INTEGER REFERENCES appuser(id) NOT NULL
 );
-
-ALTER TABLE map ADD COLUMN IF NOT EXISTS  document_id INTEGER;

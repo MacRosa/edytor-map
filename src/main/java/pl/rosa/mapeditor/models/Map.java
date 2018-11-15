@@ -16,7 +16,7 @@ public class Map {
     private String name;
     private String description;
     private String visibility;
-    private Long documentId;
+    private String documentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
@@ -63,11 +63,11 @@ public class Map {
         this.owner = owner;
     }
 
-    public Long getDocumentId() {
+    public String getDocumentId() {
         return documentId;
     }
 
-    public void setDocumentId(Long documentId) {
+    public void setDocumentId(String documentId) {
         this.documentId = documentId;
     }
 }
