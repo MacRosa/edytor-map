@@ -1,5 +1,6 @@
 package pl.rosa.mapeditor.models.map;
 
+import com.sun.javafx.css.Style;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -12,6 +13,8 @@ public class Element {
 
     private String name;
     private String type;
+
+    private Style style;
 
     public Element() {
         this._id = new ObjectId();
@@ -39,5 +42,13 @@ public class Element {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Style getStyle() {
+        return style;
+    }
+
+    public void setStyle(Style style) {
+        this.style = style;
     }
 }
