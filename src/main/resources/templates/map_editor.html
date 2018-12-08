@@ -1,4 +1,4 @@
-<html  xmlns:th="http://www.thymeleaf.org" >
+<html lang="en"  xmlns:th="http://www.thymeleaf.org" >
 	<head>
 		<title>Map editor</title>
 		<meta charset="UTF-8"/>
@@ -18,7 +18,11 @@
 		<input type="text" id="nameInput" disabled /> 
 		<br />
 		<br />
-		<button id="saveMap">Save </button>
+		<form th:action="@{/test/submitmap}" method="POST" id="saveMap">
+			<!--<input type="hidden" id="#mapData" name="data" value="nondata" />-->
+			<button type="submit"> Save </button>
+		</form>
+		<!--<button id="saveMap">Save </button>-->
 	</body>
 	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
 	<script th:src="@{/js/raphael.min.js}"></script>
@@ -61,7 +65,7 @@
 			var getRectFromElement = function(element){
 				var bbox = element.getBBox();
 				return paper.rect(bbox.x,bbox.y,bbox.width,bbox.height);
-			}
+			};
 			
 			class Element{
 				constructor(shape, text){
@@ -197,7 +201,7 @@
 						ty : this.text.attr("y"),
 						tbx : this.textSelectionBox.attr("x"),
 						tby : this.textSelectionBox.attr("y")
-					}
+					};
 					var pst = this.startCoords;
 					this.pointSet.forEach(
 						function (el) {
@@ -353,7 +357,7 @@
 				element.text.click(function elementCl(){elementClicked(element);});
 				element.shape.click(function elementCl2(){elementClicked(element);});
 				return element;
-			}
+			};
 
 			
 			class AddPointAction extends ButtonAction {
@@ -574,7 +578,7 @@
 						alert("Name field is empty.");
 					}
 					return false;
-				};
+				}
 			});
 			
 			
@@ -618,13 +622,13 @@
 
 			};
 			
-			function download(content, fileName, contentType) {
+			/*function download(content, fileName, contentType) {
 				var a = document.createElement("a");
 				var file = new Blob([content], {type: contentType});
 				a.href = URL.createObjectURL(file);
 				a.download = fileName;
 				a.click();
-			}
+			}*/
 			
 			$("#drawArea").bind('click',clickfun);
 		/*	$("#saveMap").click(function (){
@@ -633,6 +637,17 @@
 				download(JSON.stringify(getData()),"data.txt","text/plain");
 		//		window.saveAs(getData(),"data.txt");
 			});*/
+			$("#saveMap").submit(function () {
+
+				alert("Work in progress");
+				return false;
+
+				/*$("<input />").attr('type','hidden')
+						.attr('name','mapData')
+						.attr('value', JSON.stringify(getData()))
+						.appendTo(this);
+				return true;
+*/			});
 			
 		};
 		/*]]>*/

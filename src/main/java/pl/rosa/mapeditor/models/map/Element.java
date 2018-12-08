@@ -1,6 +1,6 @@
 package pl.rosa.mapeditor.models.map;
 
-import com.sun.javafx.css.Style;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -8,10 +8,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * Created by Maciej on 2018-11-15 17:34
  */
 public class Element {
+
+    @JsonIgnore
     @Field("_id")
     private ObjectId _id;
 
-    private String name;
+    private Text name;
     private String type;
 
     private Style style;
@@ -28,11 +30,11 @@ public class Element {
         this._id = _id;
     }
 
-    public String getName() {
+    public Text getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(Text name) {
         this.name = name;
     }
 
