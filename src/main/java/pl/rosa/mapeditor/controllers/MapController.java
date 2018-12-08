@@ -88,4 +88,10 @@ public class MapController {
         }
         return modelAndView;
     }
+
+    @GetMapping("/map/edit/{id}")
+    @ResponseBody
+    public String editMap(@PathVariable("id")Long id){
+        return "Edit map " + id + ". Work in progress.";
+    }
 }

@@ -53,4 +53,12 @@ public class MapService {
         }
         return map;
     }
+
+    public boolean userCanEdit(AppUser user, Map map) {
+        return user.getId().equals(map.getOwner().getId());
+    }
+
+    public boolean currentUserCanEdit(Map map){
+        return userCanEdit(loggedUser.getLoggedUser().getAppUser(),map);
+    }
 }
