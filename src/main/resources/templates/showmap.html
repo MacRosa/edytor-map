@@ -20,8 +20,8 @@
             <p>Description:</p>
             <p th:text="${model.description}"></p>
 
-            <div th:if="${@mapService.currentUserCanEdit(model)}">
-                <a th:href="@{/map/edit/{map_id}(map_id=${model.id})}">Edytuj</a>
+            <div th:if="${@mapService.currentUserCanEdit(model)}" class="container">
+                <a class="btn btn-primary" th:href="@{/map/edit/{map_id}(map_id=${model.id})}">Edytuj</a>
             </div>
         </div>
         <div th:if="${notfound}" class="container mt-5">
