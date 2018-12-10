@@ -19,6 +19,7 @@ import pl.rosa.mapeditor.repositories.MapDetailsRepository;
 import pl.rosa.mapeditor.services.AppUserService;
 import pl.rosa.mapeditor.services.MapService;
 import pl.rosa.mapeditor.utils.MapConverter;
+import pl.rosa.mapeditor.utils.MapDetailsRequest;
 import pl.rosa.mapeditor.viewmodels.MapViewModel;
 
 import javax.validation.Valid;
@@ -34,7 +35,6 @@ public class MapController {
     private LoggedUser loggedUser;
     private AppUserService appUserService;
     private final MapConverter mapConverter;
-    @SuppressWarnings("FieldCanBeLocal")
     private ObjectMapper objectMapper;
     private MapDetailsRepository mapDetailsRepository;
 
@@ -154,25 +154,25 @@ public class MapController {
 
     @GetMapping("/map/details/{id}")
     @ResponseBody
-    public String getMapDetails(@PathVariable("id")Long id) throws IOException {
+    public MapDetailsRequest getMapDetails(@PathVariable("id")Long id){
         try {
             Map map = mapService.getMap(id);
             if(!mapService.currentUserCanEdit(map)){
-                return "Not allowed to edit";
+                return new MapDetailsRequest(false,"No permissions to edit",null);
             }
             if(map.getDocumentId() == null){
-                return "No map details";
+                return new MapDetailsRequest(true,"No document",null);
             }
 
             MapDetails mapDetails = mapDetailsRepository.findById(map.getDocumentId()).orElse(null);
             if(mapDetails == null){
-                return "Map details are null";
+                return new MapDetailsRequest(true,"No details",null);
             }
-            return objectMapper.writeValueAsString(mapDetails);
+            return new MapDetailsRequest(true,"success",mapDetails);
         } catch (MapNotFoundException e) {
-            return "Map not found";
+            return new MapDetailsRequest(false,"Map not found",null);
         } catch (NoAccessToMapException e) {
-            return "No access to map.";
+            return new MapDetailsRequest(false,"No access to map",null);
         }
     }
 
