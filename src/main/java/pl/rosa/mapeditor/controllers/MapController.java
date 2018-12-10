@@ -3,6 +3,7 @@ package pl.rosa.mapeditor.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,6 +15,7 @@ import pl.rosa.mapeditor.login.LoggedUser;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.models.Map;
 import pl.rosa.mapeditor.models.map.MapDetails;
+import pl.rosa.mapeditor.repositories.MapDetailsRepository;
 import pl.rosa.mapeditor.services.AppUserService;
 import pl.rosa.mapeditor.services.MapService;
 import pl.rosa.mapeditor.utils.MapConverter;
@@ -32,14 +34,17 @@ public class MapController {
     private LoggedUser loggedUser;
     private AppUserService appUserService;
     private final MapConverter mapConverter;
+    @SuppressWarnings("FieldCanBeLocal")
     private ObjectMapper objectMapper;
+    private MapDetailsRepository mapDetailsRepository;
 
     @Autowired
-    public MapController(MapService mapService, LoggedUser loggedUser, AppUserService appUserService, MapConverter mapConverter) {
+    public MapController(MapService mapService, LoggedUser loggedUser, AppUserService appUserService, MapConverter mapConverter, MapDetailsRepository mapDetailsRepository) {
         this.mapService = mapService;
         this.loggedUser = loggedUser;
         this.appUserService = appUserService;
         this.mapConverter = mapConverter;
+        this.mapDetailsRepository = mapDetailsRepository;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -117,8 +122,35 @@ public class MapController {
 
     @PostMapping("/map/edit/{id}")
     @ResponseBody
-    public MapDetails sendEditedMap(@PathVariable("id")Long id, @RequestParam("mapData") String mapData) throws IOException {
-        return mapConverter.getMapFromJson(objectMapper.readTree(mapData));
-      //  return "Work in progress. Map id: " + id + ". Acquired map data: " + mapData;
+    @Transactional
+    public String sendEditedMap(@PathVariable("id")Long id, @RequestParam("mapData") String mapData) throws IOException {
+        try {
+            Map map = mapService.getMap(id);
+            if(!mapService.currentUserCanEdit(map)){
+                return "cantEdit";
+            }
+            MapDetails mapDetails = mapConverter.getMapFromJson(objectMapper.readTree(mapData));
+            if(map.getDocumentId() == null) {
+                mapDetailsRepository.save(mapDetails);
+                map.setDocumentId(mapDetails.getId());
+            }else{
+                MapDetails oldDetails = mapDetailsRepository.findById(map.getDocumentId()).orElse(null);
+                if(oldDetails == null){
+                    mapDetailsRepository.save(mapDetails);
+                    map.setDocumentId(mapDetails.getId());
+                }else{
+                    mapDetails.setId(oldDetails.getId());
+                    mapDetailsRepository.save(mapDetails);
+                }
+            }
+            return objectMapper.writeValueAsString(mapDetails);
+
+        } catch (MapNotFoundException e) {
+            return "mapNotFound";
+        } catch (NoAccessToMapException e) {
+            return "noAccess";
+        }
     }
+
+
 }

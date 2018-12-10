@@ -8,6 +8,10 @@ public class PathSegment {
     private double X;
     private double Y;
 
+    public PathSegment(){
+
+    }
+
     public PathSegment(char instruction, double x, double y) {
         Instruction = instruction;
         X = x;
