@@ -72,10 +72,7 @@ public class MapController {
         return new ModelAndView("redirect:/map/list");
     }
 
-
-    @GetMapping("/map/show/{id}")
-    public ModelAndView getMap(@PathVariable("id")Long id){
-        ModelAndView modelAndView = new ModelAndView("showmap");
+    private void addMapModelAndValidate(ModelAndView modelAndView,Long id){
         modelAndView.addObject("notfound",false);
         modelAndView.addObject("noaccess",false);
         try{
@@ -86,6 +83,13 @@ public class MapController {
         }catch(NoAccessToMapException ex){
             modelAndView.addObject("noaccess",true);
         }
+    }
+
+
+    @GetMapping("/map/show/{id}")
+    public ModelAndView getMap(@PathVariable("id")Long id){
+        ModelAndView modelAndView = new ModelAndView("showmap");
+        addMapModelAndValidate(modelAndView,id);
         return modelAndView;
     }
 

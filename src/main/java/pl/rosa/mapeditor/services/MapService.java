@@ -59,6 +59,8 @@ public class MapService {
     }
 
     public boolean currentUserCanEdit(Map map){
+        if(!loggedUser.isLogged())
+            return false;
         return userCanEdit(loggedUser.getLoggedUser().getAppUser(),map);
     }
 }

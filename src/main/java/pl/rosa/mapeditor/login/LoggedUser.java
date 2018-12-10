@@ -22,6 +22,10 @@ public class LoggedUser {
         return (AppUserLogin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
+    public boolean isLogged(){
+        return appUserService.isUserLoggedIn();
+    }
+
     public String getUserName(){
         if(appUserService.isUserLoggedIn()){
             return getLoggedUser().getAppUser().getName();
