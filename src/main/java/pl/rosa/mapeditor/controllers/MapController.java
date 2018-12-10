@@ -152,5 +152,28 @@ public class MapController {
         }
     }
 
+    @GetMapping("/map/details/{id}")
+    @ResponseBody
+    public String getMapDetails(@PathVariable("id")Long id) throws IOException {
+        try {
+            Map map = mapService.getMap(id);
+            if(!mapService.currentUserCanEdit(map)){
+                return "Not allowed to edit";
+            }
+            if(map.getDocumentId() == null){
+                return "No map details";
+            }
+
+            MapDetails mapDetails = mapDetailsRepository.findById(map.getDocumentId()).orElse(null);
+            if(mapDetails == null){
+                return "Map details are null";
+            }
+            return objectMapper.writeValueAsString(mapDetails);
+        } catch (MapNotFoundException e) {
+            return "Map not found";
+        } catch (NoAccessToMapException e) {
+            return "No access to map.";
+        }
+    }
 
 }
