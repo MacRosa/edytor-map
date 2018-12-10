@@ -1,50 +1,88 @@
+<!DOCTYPE html>
+<!--suppress HtmlUnknownTag -->
 <html lang="en"  xmlns:th="http://www.thymeleaf.org" >
+<!--/*@thymesVar id="model" type="pl.rosa.mapeditor.models.Map"*/-->
+<!--/*@thymesVar id="notfound" type="boolean"*/-->
+<!--/*@thymesVar id="noaccess" type="boolean"*/-->
+<!--/*@thymesVar id="cantedit" type="boolean"*/-->
 	<head>
-		<title>Map editor</title>
-		<meta charset="UTF-8"/>
+        <meta charset="UTF-8">
+        <div th:replace="/fragments/styles :: styles"></div>
+        <title th:unless="${notfound || noaccess || cantedit}" >
+            <span th:text="${model.name}" th:remove="tag"></span> - map editor
+        </title>
+        <title th:if="${notfound || noaccess || cantedit}">Error</title>
 	</head>
 	<body>
-		<div id="actionDescription"> Action description (work in progress).</div>
-		<div id="drawArea"></div>
-		<div>
-			<button id="addPoint">Add point</button>
-			<button id="addLine">Add line</button>
-			<button id="addArea">Add area</button>
-			<button id="edit">Edit element</button>
-			<button id="remove">Remove element</button>
-		</div>
-		<br/>
-        <label for="nameInput">Name:</label>
-        <input type="text" id="nameInput" disabled />
-		<br />
-		<br />
-		<form th:action="@{/test/submitmap}" method="POST" id="saveMap">
-			<!--<input type="hidden" id="#mapData" name="data" value="nondata" />-->
-			<button type="submit"> Save </button>
-		</form>
+        <div th:replace="/fragments/navbar :: navbar" ></div>
+        <div th:unless="${notfound || noaccess || cantedit}" class="container mt-5">
+            <div id="actionDescription"> Action description (work in progress).</div>
+            <div id="drawArea"></div>
+            <div>
+                <button id="addPoint">Add point</button>
+                <button id="addLine">Add line</button>
+                <button id="addArea">Add area</button>
+                <button id="edit">Edit element</button>
+                <button id="remove">Remove element</button>
+            </div>
+            <br/>
+            <label for="nameInput">Name:</label>
+            <input type="text" id="nameInput" disabled />
+            <br />
+            <br />
+            <form th:action="@{/test/submitmap}" method="POST" id="saveMap">
+                <!--<input type="hidden" id="#mapData" name="data" value="nondata" />-->
+                <button type="submit"> Save </button>
+            </form>
+        </div>
+        <div th:if="${notfound}" class="container mt-5">
+            <h2>Error</h2>
+            <p>Map not found.</p>
+        </div>
+        <div th:if="${noaccess}" class="container mt-5">
+            <h2>Error</h2>
+            <p>You have no access to this map.</p>
+        </div>
+        <div th:if="${cantedit&& !noaccess && !notfound}" class="container mt-5">
+            <h2>Error</h2>
+            <p>You are not allowed to edit this map.</p>
+        </div>
+
 	</body>
-	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
-	<script th:src="@{/js/raphael.min.js}"></script>
+    <div th:replace="/fragments/scripts :: scripts"></div>
+    <script th:src="@{/js/raphael.min.js}"></script>
     <script th:src="@{/js/mapeditor.js}"></script>
-    <script>
+    <script th:inline="javascript">
         window.onload = function(){
-            initMapEditor( {
-                    area : {
-                        id: "drawArea",
-                        width: 500,
-                        height: 500
-                    },
-                    nameInput : "nameInput",
-                    buttons : {
-                        addPoint: "addPoint",
-                        addLine: "addLine",
-                        addArea: "addArea",
-                        editElement: "edit",
-                        deleteElement: "remove",
-                    },
-                    saveMap : "saveMap"
-                }
-            );
+            /*<![CDATA[*/
+
+            var tlnotfound = /*[[${notfound}]]*/ true;
+            var tlnoaccess = /*[[${noaccess}]]*/ true;
+            var tlcantedit = /*[[${cantedit}]]*/ true;
+
+
+            /*]]>*/
+
+
+           if(!tlnotfound && !tlnoaccess && !tlcantedit){
+                initMapEditor( {
+                        area : {
+                            id: "drawArea",
+                            width: 500,
+                            height: 500
+                        },
+                        nameInput : "nameInput",
+                        buttons : {
+                            addPoint: "addPoint",
+                            addLine: "addLine",
+                            addArea: "addArea",
+                            editElement: "edit",
+                            deleteElement: "remove",
+                        },
+                        saveMap : "saveMap"
+                    }
+                );
+            }
         }
     </script>
 </html>

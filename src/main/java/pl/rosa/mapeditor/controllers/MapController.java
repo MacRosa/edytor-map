@@ -72,17 +72,19 @@ public class MapController {
         return new ModelAndView("redirect:/map/list");
     }
 
-    private void addMapModelAndValidate(ModelAndView modelAndView,Long id){
+    private Map addMapModelAndValidate(ModelAndView modelAndView,Long id){
         modelAndView.addObject("notfound",false);
         modelAndView.addObject("noaccess",false);
         try{
             Map map = mapService.getMap(id);
             modelAndView.addObject("model",map);
+            return map;
         }catch(MapNotFoundException ex){
             modelAndView.addObject("notfound",true);
         }catch(NoAccessToMapException ex){
             modelAndView.addObject("noaccess",true);
         }
+        return null;
     }
 
 
@@ -94,8 +96,14 @@ public class MapController {
     }
 
     @GetMapping("/map/edit/{id}")
-    @ResponseBody
-    public String editMap(@PathVariable("id")Long id){
-        return "Edit map " + id + ". Work in progress.";
+    public ModelAndView editMap(@PathVariable("id")Long id){
+        ModelAndView modelAndView = new ModelAndView("map_editor");
+        Map map = addMapModelAndValidate(modelAndView,id);
+        if(map != null){
+            modelAndView.addObject("cantedit",!(mapService.currentUserCanEdit(map)));
+        }else{
+            modelAndView.addObject("cantedit",true);
+        }
+        return modelAndView;
     }
 }
