@@ -30,8 +30,10 @@
             <input type="text" id="nameInput" disabled />
             <br />
             <br />
-            <form th:action="@{/test/submitmap}" method="POST" id="saveMap">
-                <!--<input type="hidden" id="#mapData" name="data" value="nondata" />-->
+            <form th:action="@{/map/edit/{map_id}(map_id=${model.id})}" method="POST" id="saveMap">
+<!--
+                <input type="hidden" id="mapData" name="data" value="Data" />
+-->
                 <button type="submit"> Save </button>
             </form>
         </div>
@@ -47,7 +49,9 @@
             <h2>Error</h2>
             <p>You are not allowed to edit this map.</p>
         </div>
+        <p id="there">
 
+        </p>
 	</body>
     <div th:replace="/fragments/scripts :: scripts"></div>
     <script th:src="@{/js/raphael.min.js}"></script>

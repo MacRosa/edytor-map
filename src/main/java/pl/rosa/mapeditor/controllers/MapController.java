@@ -1,5 +1,6 @@
 package pl.rosa.mapeditor.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -12,11 +13,14 @@ import pl.rosa.mapeditor.exceptions.NoAccessToMapException;
 import pl.rosa.mapeditor.login.LoggedUser;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.models.Map;
+import pl.rosa.mapeditor.models.map.MapDetails;
 import pl.rosa.mapeditor.services.AppUserService;
 import pl.rosa.mapeditor.services.MapService;
+import pl.rosa.mapeditor.utils.MapConverter;
 import pl.rosa.mapeditor.viewmodels.MapViewModel;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 /**
  * Created by Maciej on 2018-11-02 11:30
@@ -27,12 +31,16 @@ public class MapController {
     private MapService mapService;
     private LoggedUser loggedUser;
     private AppUserService appUserService;
+    private final MapConverter mapConverter;
+    private ObjectMapper objectMapper;
 
     @Autowired
-    public MapController(MapService mapService, LoggedUser loggedUser, AppUserService appUserService) {
+    public MapController(MapService mapService, LoggedUser loggedUser, AppUserService appUserService, MapConverter mapConverter) {
         this.mapService = mapService;
         this.loggedUser = loggedUser;
         this.appUserService = appUserService;
+        this.mapConverter = mapConverter;
+        this.objectMapper = new ObjectMapper();
     }
 
 
@@ -105,5 +113,12 @@ public class MapController {
             modelAndView.addObject("cantedit",true);
         }
         return modelAndView;
+    }
+
+    @PostMapping("/map/edit/{id}")
+    @ResponseBody
+    public MapDetails sendEditedMap(@PathVariable("id")Long id, @RequestParam("mapData") String mapData) throws IOException {
+        return mapConverter.getMapFromJson(objectMapper.readTree(mapData));
+      //  return "Work in progress. Map id: " + id + ". Acquired map data: " + mapData;
     }
 }

@@ -388,7 +388,7 @@ class EditElementAction extends ButtonAction{
 
 
 
-function getData(paper){
+function getData(){
     let mapData = {
         width : paper.width,
         height : paper.height,
@@ -574,15 +574,11 @@ function initMapEditor(UIElements){
 
 
     $("#"+UIElements.saveMap).submit(function () {
-        alert("Work in progress");
-        return false;
-
-        /*$("<input />").attr('type','hidden')
+        $("<input />").attr('type','hidden')
                 .attr('name','mapData')
                 .attr('value', JSON.stringify(getData()))
-                .appendTo(this);
+            .appendTo(this);
         return true;
-*/
     });
 
 
