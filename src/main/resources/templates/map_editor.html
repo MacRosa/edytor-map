@@ -31,9 +31,6 @@
             <br />
             <br />
             <form th:action="@{/map/edit/{map_id}(map_id=${model.id})}" method="POST" id="saveMap">
-<!--
-                <input type="hidden" id="mapData" name="data" value="Data" />
--->
                 <button type="submit"> Save </button>
             </form>
         </div>
@@ -57,32 +54,43 @@
         window.onload = function(){
             /*<![CDATA[*/
 
-            var tlnotfound = /*[[${notfound}]]*/ true;
-            var tlnoaccess = /*[[${noaccess}]]*/ true;
-            var tlcantedit = /*[[${cantedit}]]*/ true;
-
+            let tlnotfound = /*[[${notfound}]]*/ true;
+            let tlnoaccess = /*[[${noaccess}]]*/ true;
+            let tlcantedit = /*[[${cantedit}]]*/ true;
+            let requestUrl = /*[[@{/map/details/}]]*/ '/map/noooo';
+            let mapValue =   /*[[${model.id}]]*/ 0;
 
             /*]]>*/
 
 
            if(!tlnotfound && !tlnoaccess && !tlcantedit){
-                initMapEditor( {
-                        area : {
-                            id: "drawArea",
-                            width: 500,
-                            height: 500
-                        },
-                        nameInput : "nameInput",
-                        buttons : {
-                            addPoint: "addPoint",
-                            addLine: "addLine",
-                            addArea: "addArea",
-                            editElement: "edit",
-                            deleteElement: "remove",
-                        },
-                        saveMap : "saveMap"
-                    }
-                );
+               $.get(requestUrl+mapValue,function(data){
+                   console.log("Request has returned",data);
+                   if(data.success){
+                       initMapEditor( {
+                               area : {
+                                   id: "drawArea",
+                                   width: 500,
+                                   height: 500
+                               },
+                               nameInput : "nameInput",
+                               buttons : {
+                                   addPoint: "addPoint",
+                                   addLine: "addLine",
+                                   addArea: "addArea",
+                                   editElement: "edit",
+                                   deleteElement: "remove",
+                               },
+                               saveMap : "saveMap"
+                           }
+                       );
+                       if(data.mapDetails != null){
+                           loadMap(data.mapDetails);
+                       }
+                   }
+
+               });
+
             }
         }
     </script>

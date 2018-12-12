@@ -386,7 +386,41 @@ class EditElementAction extends ButtonAction{
 
 }
 
+function loadMap(mapDetails){
 
+    mapDetails.areas.forEach(
+        function(line){
+            let pathArray = [];
+            line.path.forEach( function(ps) {
+                pathArray.push([ps.instruction,ps.x,ps.y]);
+            });
+            let areaShape = paper.path(pathArray).attr({fill:"cyan"});
+            let text = paper.text(line.name.x,line.name.y,line.name.value);
+            areas.push(addListeners(new AreaElement(areaShape,text)));
+        }
+    );
+
+
+    mapDetails.lines.forEach(
+        function(line){
+            let pathArray = [];
+            line.path.forEach( function(ps) {
+                pathArray.push([ps.instruction,ps.x,ps.y]);
+            });
+            let lineShape = paper.path(pathArray);
+            let text = paper.text(line.name.x,line.name.y,line.name.value);
+            lines.push(addListeners(new LineElement(lineShape,text)));
+        }
+    );
+
+    mapDetails.points.forEach(
+        function(point){
+            let pointShape = paper.circle(point.x,point.y,10).attr({fill:"green"});
+            let text = paper.text(point.name.x,point.name.y,point.name.value);
+            points.push(addListeners(new PointElement(pointShape,text)));
+        }
+    );
+}
 
 function getData(){
     let mapData = {
