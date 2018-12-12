@@ -23,9 +23,33 @@ function calculateTextPosition(px,py,alpha,textWidth,textHeight) {
 
 
 
-points = [];
-lines = [];
-areas = [];
+let points = [];
+let lines = [];
+let areas = [];
+
+let lastArea = null;
+let lastPoint = null;
+let lastLine = null;
+let lastText = null;
+
+function insertPoint(point){
+    point.insertAfter(lastPoint);
+    lastPoint = point;
+}
+function insertLine(line){
+    line.insertAfter(lastLine);
+    lastLine = line;
+}
+function insertArea(area){
+    area.insertAfter(lastArea);
+    lastArea = area;
+}
+function insertText(text){
+    text.insertAfter(lastText);
+    lastText = text;
+}
+
+
 
 let paper = null;
 
@@ -237,6 +261,8 @@ class AddPointAction extends ButtonAction {
 
     nameAdded(value){
         let text = paper.text(this.circle.attr("cx"),this.circle.attr("cy")-20,value);
+        insertPoint(this.circle);
+        insertText(text);
         points.push(addListeners(new PointElement(this.circle,text)));
         this.circle = null;
 
@@ -290,7 +316,10 @@ class AddLineAction extends ButtonAction {
         let textBbox = text.getBBox();
         let middle = this.path.getPointAtLength(this.path.getTotalLength()/2);
         let textPos = calculateTextPosition(middle.x,middle.y,middle.alpha,textBbox.width,textBbox.height);
+
         text.attr(textPos);
+        insertLine(this.path);
+        insertText(text);
         lines.push(addListeners(new LineElement(this.path,text)));
         this.path = null;
         this.pathArray = null;
@@ -311,6 +340,8 @@ class AddAreaAction extends AddLineAction {
     nameAdded(value){
         let areaBox = this.path.getBBox();
         let text = paper.text(areaBox.cx,areaBox.cy,nameInput.value);
+        insertArea(this.path);
+        insertText(text);
         areas.push(addListeners(new AreaElement(this.path,text)));
         this.path = null;
         this.pathArray = null;
@@ -392,10 +423,13 @@ function loadMap(mapDetails){
         function(line){
             let pathArray = [];
             line.path.forEach( function(ps) {
+                // noinspection JSUnresolvedVariable
                 pathArray.push([ps.instruction,ps.x,ps.y]);
             });
             let areaShape = paper.path(pathArray).attr({fill:"cyan"});
             let text = paper.text(line.name.x,line.name.y,line.name.value);
+            insertArea(areaShape);
+            insertText(text);
             areas.push(addListeners(new AreaElement(areaShape,text)));
         }
     );
@@ -405,10 +439,13 @@ function loadMap(mapDetails){
         function(line){
             let pathArray = [];
             line.path.forEach( function(ps) {
+                // noinspection JSUnresolvedVariable
                 pathArray.push([ps.instruction,ps.x,ps.y]);
             });
             let lineShape = paper.path(pathArray);
             let text = paper.text(line.name.x,line.name.y,line.name.value);
+            insertLine(lineShape);
+            insertText(text);
             lines.push(addListeners(new LineElement(lineShape,text)));
         }
     );
@@ -417,6 +454,8 @@ function loadMap(mapDetails){
         function(point){
             let pointShape = paper.circle(point.x,point.y,10).attr({fill:"green"});
             let text = paper.text(point.name.x,point.name.y,point.name.value);
+            insertPoint(pointShape);
+            insertText(text);
             points.push(addListeners(new PointElement(pointShape,text)));
         }
     );
@@ -498,6 +537,11 @@ function initMapEditor(UIElements){
     paper = Raphael(UIElements.area.id,UIElements.area.width,UIElements.area.height);
     paper.rect(0,0,paper.width,paper.height);
     nameInput = document.getElementById(UIElements.nameInput);
+
+    lastArea = paper.circle(0,0,0).hide();
+    lastLine = paper.circle(0,0,0).hide();
+    lastPoint = paper.circle(0,0,0).hide();
+    lastText = paper.circle(0,0,0).hide();
 
     nameField = {
         input : nameInput,

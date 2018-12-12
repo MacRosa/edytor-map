@@ -121,13 +121,13 @@ public class MapController {
     }
 
     @PostMapping("/map/edit/{id}")
-    @ResponseBody
     @Transactional
-    public String sendEditedMap(@PathVariable("id")Long id, @RequestParam("mapData") String mapData) throws IOException {
+    public ModelAndView sendEditedMap(@PathVariable("id")Long id, @RequestParam("mapData") String mapData) throws IOException {
         try {
+            ModelAndView modelAndView = new ModelAndView("redirect:/map/show/" + id);
             Map map = mapService.getMap(id);
             if(!mapService.currentUserCanEdit(map)){
-                return "cantEdit";
+                return new ModelAndView("error");
             }
             MapDetails mapDetails = mapConverter.getMapFromJson(objectMapper.readTree(mapData));
             if(map.getDocumentId() == null) {
@@ -143,12 +143,14 @@ public class MapController {
                     mapDetailsRepository.save(mapDetails);
                 }
             }
-            return objectMapper.writeValueAsString(mapDetails);
+            return modelAndView;
+            //return objectMapper.writeValueAsString(mapDetails);
 
         } catch (MapNotFoundException e) {
-            return "mapNotFound";
-        } catch (NoAccessToMapException e) {
-            return "noAccess";
+            return new ModelAndView("error");
+        } catch (@SuppressWarnings({"TryWithIdenticalCatches", "RedundantSuppression"}) NoAccessToMapException e) {
+            //other
+            return new ModelAndView("error");
         }
     }
 
