@@ -7,14 +7,14 @@
 <!--/*@thymesVar id="cantedit" type="boolean"*/-->
 	<head>
         <meta charset="UTF-8">
-        <div th:replace="/fragments/styles :: styles"></div>
+        <div th:replace="fragments/styles :: styles"></div>
         <title th:unless="${notfound || noaccess || cantedit}" >
             <span th:text="${model.name}" th:remove="tag"></span> - map editor
         </title>
         <title th:if="${notfound || noaccess || cantedit}">Error</title>
 	</head>
 	<body>
-        <div th:replace="/fragments/navbar :: navbar" ></div>
+        <div th:replace="fragments/navbar :: navbar" ></div>
         <div th:unless="${notfound || noaccess || cantedit}" class="container mt-5">
             <div id="actionDescription"> Action description (work in progress).</div>
             <div id="drawArea"></div>
@@ -47,7 +47,7 @@
             <p>You are not allowed to edit this map.</p>
         </div>
 	</body>
-    <div th:replace="/fragments/scripts :: scripts"></div>
+    <div th:replace="fragments/scripts :: scripts"></div>
     <script th:src="@{/js/raphael.min.js}"></script>
     <script th:src="@{/js/mapeditor.js}"></script>
     <script th:inline="javascript">

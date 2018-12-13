@@ -6,7 +6,7 @@
 <!--/*@thymesVar id="noaccess" type="boolean"*/-->
 <head>
     <meta charset="UTF-8">
-    <div th:replace="/fragments/styles :: styles"></div>
+    <div th:replace="fragments/styles :: styles"></div>
     <title th:unless="${notfound || noaccess}" >
         <span th:text="${model.name}" th:remove="tag"></span>
         </title>
@@ -14,7 +14,7 @@
 </head>
     <body>
 
-        <div th:replace="/fragments/navbar :: navbar" ></div>
+        <div th:replace="fragments/navbar :: navbar" ></div>
         <div th:unless="${notfound || noaccess}" class="container mt-5">
             <h2 th:text="${model.name}"></h2>
             <p>Description:</p>
@@ -33,6 +33,6 @@
             <p>You have no access to this map.</p>
         </div>
     </body>
-    <div th:replace="/fragments/scripts :: scripts"></div>
+    <div th:replace="fragments/scripts :: scripts"></div>
 
 </html>

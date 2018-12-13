@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <!--suppress HtmlUnknownTag -->
-    <div th:replace="/fragments/styles :: styles"></div>
+    <div th:replace="fragments/styles :: styles"></div>
     <link  rel="stylesheet" href="../static/css/jasny-bootstrap.css" th:href="@{/css/jasny-bootstrap.css}"/>
     <title>My maps</title>
 </head>
     <body>
-        <div th:replace="/fragments/navbar :: navbar" ></div>
+        <div th:replace="fragments/navbar :: navbar" ></div>
         <div class="container mt-5">
             <!--/*@thymesVar id="mapadded" type="boolean"*/-->
             <div class="alert alert-success" th:if="${mapadded}">
@@ -51,7 +51,7 @@
             <p>This site is under construction.</p>
         </div>
     </body>
-    <div th:replace="/fragments/scripts :: scripts"></div>
+    <div th:replace="fragments/scripts :: scripts"></div>
     <script th:src="@{/js/jasny-bootstrap.js}"></script>
 
 </html>
