@@ -33,20 +33,20 @@ let lastLine = null;
 let lastText = null;
 
 function insertPoint(point){
-    point.insertAfter(lastPoint);
-    lastPoint = point;
+    point.insertBefore(lastPoint);
+    //lastPoint = point;
 }
 function insertLine(line){
-    line.insertAfter(lastLine);
-    lastLine = line;
+    line.insertBefore(lastLine);
+    //lastLine = line;
 }
 function insertArea(area){
-    area.insertAfter(lastArea);
-    lastArea = area;
+    area.insertBefore(lastArea);
+   // lastArea = area;
 }
 function insertText(text){
-    text.insertAfter(lastText);
-    lastText = text;
+    text.insertBefore(lastText);
+    //lastText = text;
 }
 
 
