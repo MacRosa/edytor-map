@@ -18,7 +18,7 @@ import pl.rosa.mapeditor.models.map.MapDetails;
 import pl.rosa.mapeditor.repositories.MapDetailsRepository;
 import pl.rosa.mapeditor.services.AppUserService;
 import pl.rosa.mapeditor.services.MapService;
-import pl.rosa.mapeditor.utils.MapConverter;
+import pl.rosa.mapeditor.utils.JSONToMapConverter;
 import pl.rosa.mapeditor.utils.MapDetailsRequest;
 import pl.rosa.mapeditor.viewmodels.MapViewModel;
 
@@ -34,12 +34,12 @@ public class MapController {
     private MapService mapService;
     private LoggedUser loggedUser;
     private AppUserService appUserService;
-    private final MapConverter mapConverter;
+    private final JSONToMapConverter mapConverter;
     private ObjectMapper objectMapper;
     private MapDetailsRepository mapDetailsRepository;
 
     @Autowired
-    public MapController(MapService mapService, LoggedUser loggedUser, AppUserService appUserService, MapConverter mapConverter, MapDetailsRepository mapDetailsRepository) {
+    public MapController(MapService mapService, LoggedUser loggedUser, AppUserService appUserService, JSONToMapConverter mapConverter, MapDetailsRepository mapDetailsRepository) {
         this.mapService = mapService;
         this.loggedUser = loggedUser;
         this.appUserService = appUserService;

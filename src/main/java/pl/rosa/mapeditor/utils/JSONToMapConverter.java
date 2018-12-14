@@ -11,7 +11,7 @@ import java.util.List;
  * Created by Maciej on 2018-12-08 17:45
  */
 @Component
-public class MapConverter {
+public class JSONToMapConverter {
 
     private Text getText(JsonNode node){
         Text text = new Text();
