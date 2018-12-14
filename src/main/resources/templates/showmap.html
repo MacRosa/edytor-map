@@ -23,6 +23,8 @@
             <div th:if="${@mapService.currentUserCanEdit(model)}" class="container">
                 <a class="btn btn-primary" th:href="@{/map/edit/{map_id}(map_id=${model.id})}">Edit</a>
             </div>
+            <div id="mapView" style="width: 500px; height: 500px;">
+            </div>
         </div>
         <div th:if="${notfound}" class="container mt-5">
             <h2>Error</h2>
