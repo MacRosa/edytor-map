@@ -7,6 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <div th:replace="fragments/styles :: styles"></div>
+    <link th:href="@{/css/leaflet.css}" rel="stylesheet"/>
     <title th:unless="${notfound || noaccess}" >
         <span th:text="${model.name}" th:remove="tag"></span>
         </title>
@@ -36,5 +37,16 @@
         </div>
     </body>
     <div th:replace="fragments/scripts :: scripts"></div>
-
+    <script th:src="@{/js/leaflet.js}"></script>
+    <!--suppress ES6ModulesDependencies -->
+    <script th:inline="javascript"  th:unless="${notfound || noaccess}">
+        window.onload = function(){
+            /*<![CDATA[*/
+            let mapValue =   /*[[${model.id}]]*/ 0;
+            /*]]>*/
+            let myMap = L.map('mapView', {zoom: 0, center: [250, 250], crs: L.CRS.Simple});
+            let imageBounds = [ [0, 0], [500, 500] ];
+            L.imageOverlay("http://127.0.0.1:8080/map/svg/"+mapValue,imageBounds).addTo(myMap);
+        }
+    </script>
 </html>
