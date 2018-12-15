@@ -43,10 +43,11 @@
         window.onload = function(){
             /*<![CDATA[*/
             let mapValue =   /*[[${model.id}]]*/ 0;
+            let mapUrl = /*[[@{/map/svg/}]]*/ '/map/svg/';
             /*]]>*/
             let myMap = L.map('mapView', {zoom: 0, center: [250, 250], crs: L.CRS.Simple});
             let imageBounds = [ [0, 0], [500, 500] ];
-            L.imageOverlay("http://127.0.0.1:8080/map/svg/"+mapValue,imageBounds).addTo(myMap);
+            L.imageOverlay(mapUrl+mapValue,imageBounds).addTo(myMap);
         }
     </script>
 </html>
