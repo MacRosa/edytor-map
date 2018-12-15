@@ -61,6 +61,7 @@ function getRectFromElement(element){
 let currentAction = null;
 let nameInput = null;
 let nameField = null;
+let currentSquare = null;
 
 class Element{
     constructor(shape, text){
@@ -135,13 +136,26 @@ class LineElement extends Element{
         this.path = shape.attr("path");
     }
 
+    selectSquare(pathPoint, sq){
+        if(currentSquare != null){
+            currentSquare.selSquare.remove();
+        }
+        let squareOfSelection = paper.rect(sq.attrs.x-5,sq.attrs.y-5,sq.attrs.width+10,sq.attrs.height+10);
+        currentSquare = { pointInPath: pathPoint, square: sq, selSquare: squareOfSelection, pathIndex : this.path.indexOf(pathPoint)};
+    }
+
     selectPath(){
         paper.setStart();
+        let tThis = this;
         if(currentAction instanceof EditElementAction){
             this.path.forEach(
                 function(element){
                     paper.rect(element[1]-5,element[2]-5,10,10).attr({fill:"black"})
-                        .drag(currentAction.onMovement,currentAction.enterMovement);
+                        .drag(currentAction.onMovement,currentAction.enterMovement)
+                        .dblclick(function(){
+                                    tThis.selectSquare(element,this);
+                                    });
+
                 }
             );
         }else{
@@ -165,13 +179,41 @@ class LineElement extends Element{
         this.textSelectionBox = getRectFromElement(this.text);
         this.selectPath();
     }
+
     selectionRemoved() {
         this.textSelectionBox.remove();
+        if(currentSquare != null){
+            currentSquare.selSquare.remove();
+            currentSquare = null;
+        }
         this.removePathSelection();
     }
 
+    movePointStart(){
+        this.startCoords = {
+            px : currentSquare.pointInPath[1],
+            py : currentSquare.pointInPath[2],
+            sqx : currentSquare.square.attrs.x,
+            sqy : currentSquare.square.attrs.y,
+            ssqx : currentSquare.selSquare.attrs.x,
+            ssqy : currentSquare.selSquare.attrs.y
+        }
+    }
+
+    onMovePoint(dx, dy){
+        currentSquare.pointInPath[1] = this.startCoords.px + dx;
+        currentSquare.pointInPath[2] = this.startCoords.py + dy;
+        this.path[currentSquare.pathIndex] = currentSquare.pointInPath;
+        this.shape.attr({path: this.path});
+        currentSquare.square.attr({x: this.startCoords.sqx+dx,y: this.startCoords.sqy + dy});
+        currentSquare.selSquare.attr({x: this.startCoords.ssqx+dx,y: this.startCoords.ssqy + dy});
+    }
 
     moveStart() {
+        if(currentSquare != null){
+            this.movePointStart();
+            return;
+        }
         this.startCoords = {
             px :  [],
             py :  [],
@@ -189,6 +231,10 @@ class LineElement extends Element{
         );
     }
     onMove(dx,dy) {
+        if(currentSquare != null){
+            this.onMovePoint(dx,dy);
+            return;
+        }
         this.text.attr({x: this.startCoords.tx+dx,y: this.startCoords.ty+dy});
         this.textSelectionBox.attr({x:this.startCoords.tbx+dx,y:this.startCoords.tby+dy});
         let i = 0;
@@ -219,6 +265,43 @@ class LineElement extends Element{
 }
 
 class AreaElement extends LineElement{
+
+    constructor(shape, text){
+        super(shape, text);
+        this.secondEndPoint = null;
+    }
+
+    onMovePoint(dx, dy){
+        super.onMovePoint(dx, dy);
+        if(this.secondEndPoint === null)
+            return;
+        this.secondEndPoint.pointInPath[1] = this.startCoords.px + dx;
+        this.secondEndPoint.pointInPath[2] = this.startCoords.py + dy;
+        this.path[this.secondEndPoint.pathIndex] = this.secondEndPoint.pointInPath;
+        this.shape.attr({path: this.path});
+        this.secondEndPoint.square.attr({x: this.startCoords.sqx+dx,y: this.startCoords.sqy + dy});
+    }
+
+
+    selectSquare(pathPoint, sq){
+        super.selectSquare(pathPoint, sq);
+        let lastIndex = this.path.length-1;
+
+        if(currentSquare.pathIndex === 0){
+            this.secondEndPoint = { pointInPath: this.path[lastIndex], pathIndex : lastIndex ,square : this.pointSet.items[lastIndex]};
+        }
+        else if(currentSquare.pathIndex === lastIndex){
+            this.secondEndPoint = { pointInPath: this.path[0], pathIndex : 0 ,square : this.pointSet.items[0]};
+        }else {
+            this.secondEndPoint = null;
+        }
+    }
+
+    selectionRemoved() {
+        super.selectionRemoved();
+        this.secondEndPoint = null;
+    }
+
 
     elementDeleted() {
         this.text.remove();
