@@ -34,19 +34,15 @@ let lastText = null;
 
 function insertPoint(point){
     point.insertBefore(lastPoint);
-    //lastPoint = point;
 }
 function insertLine(line){
     line.insertBefore(lastLine);
-    //lastLine = line;
 }
 function insertArea(area){
     area.insertBefore(lastArea);
-   // lastArea = area;
 }
 function insertText(text){
     text.insertBefore(lastText);
-    //lastText = text;
 }
 
 
@@ -62,6 +58,7 @@ let currentAction = null;
 let nameInput = null;
 let nameField = null;
 let currentSquare = null;
+let addSegmentButton = null;
 
 class Element{
     constructor(shape, text){
@@ -76,6 +73,9 @@ class Element{
 
     nameChanged(newName) {}
     elementDeleted() {}
+    startAddingSegments() {}
+    segmentAdded(x, y) {}
+    stopAddingSegments() {}
 }
 
 class PointElement extends Element{
@@ -144,6 +144,14 @@ class LineElement extends Element{
         currentSquare = { pointInPath: pathPoint, square: sq, selSquare: squareOfSelection, pathIndex : this.path.indexOf(pathPoint)};
     }
 
+    addSquare(element,x,y){
+        let tThis = this;
+        let sqr = paper.rect(x-5,y-5,10,10).attr({fill:"black"})
+            .drag(currentAction.onMovement,currentAction.enterMovement)
+            .dblclick(function(){tThis.selectSquare(element,this)});
+        this.pointSet.push(sqr);
+    }
+
     selectPath(){
         paper.setStart();
         let tThis = this;
@@ -178,6 +186,7 @@ class LineElement extends Element{
     elementSelected() {
         this.textSelectionBox = getRectFromElement(this.text);
         this.selectPath();
+        addSegmentButton.disabled = false;
     }
 
     selectionRemoved() {
@@ -187,6 +196,7 @@ class LineElement extends Element{
             currentSquare = null;
         }
         this.removePathSelection();
+        addSegmentButton.disabled = true;
     }
 
     movePointStart(){
@@ -262,6 +272,22 @@ class LineElement extends Element{
         this.shape.remove();
         lines.splice(lines.indexOf(this),1);
     }
+
+    startAddingSegments() {
+        let point = this.path[this.path.length-1];
+        this.circle = paper.circle(point[1],point[2],10);
+    }
+    segmentAdded(x, y) {
+        let element = ['L',x,y];
+        this.path.push(element);
+        this.addSquare(element,x,y);
+        this.shape.attr({path:this.path});
+        this.circle.attr({cx:x,cy:y});
+    }
+
+    stopAddingSegments() {
+        this.circle.remove();
+    }
 }
 
 class AreaElement extends LineElement{
@@ -309,6 +335,19 @@ class AreaElement extends LineElement{
         areas.splice(areas.indexOf(this),1);
     }
 
+    startAddingSegments() {
+        let point = this.path[this.path.length-2];
+        this.circle = paper.circle(point[1],point[2],10);
+    }
+
+    segmentAdded(x, y) {
+        let element = ['L',x,y];
+        this.path.splice(this.path.length-1,0,element);
+        this.addSquare(element,x,y);
+        this.shape.attr({path:this.path});
+        this.circle.attr({cx:x,cy:y});
+    }
+
 }
 
 class ButtonAction {
@@ -322,6 +361,8 @@ class ButtonAction {
     selectionRemoved(){}
     nameAdded(value){}
     elementSelected(element) {}
+
+    addSegmentPressed() {}
 }
 
 class AddPointAction extends ButtonAction {
@@ -437,15 +478,18 @@ class EditElementAction extends ButtonAction{
         this.currentSelection = null;
         this.isElementSelected = false;
         this.isElementDragged = false;
+        this.addingSegments = false;
     }
 
     selectionRemoved(){
         this.removeSelection();
     }
 
-
-
-    screenClicked(){
+    screenClicked(x,y){
+        if(this.addingSegments && (this.currentSelection != null)){
+            this.currentSelection.segmentAdded(x,y);
+            return;
+        }
         if(!this.isElementSelected && !this.isElementDragged){
             this.removeSelection();
         }else{
@@ -473,6 +517,7 @@ class EditElementAction extends ButtonAction{
     }
 
     removeSelection(){
+        this.stopAddingElements();
         if(this.currentSelection != null){
             this.currentSelection.selectionRemoved();
             this.currentSelection.shape.undrag();
@@ -488,7 +533,21 @@ class EditElementAction extends ButtonAction{
         }
     }
 
+    stopAddingElements(){
+        if(this.addingSegments === true){
+            this.currentSelection.stopAddingSegments();
+            this.addingSegments = false;
+        }
+    }
+
+    enterPressed() {
+        this.stopAddingElements();
+    }
+
     elementSelected(element) {
+        if(this.addingSegments){
+            return;
+        }
         if(element === this.currentSelection){
             this.isElementSelected = true;
             return;
@@ -496,6 +555,16 @@ class EditElementAction extends ButtonAction{
         this.removeSelection();
         this.currentSelection = element;
         this.selectElement();
+    }
+
+    addSegmentPressed() {
+        if(this.addingSegments){
+            return;
+        }
+        if(this.currentSelection != null){
+            this.currentSelection.startAddingSegments();
+            this.addingSegments = true;
+        }
     }
 
 }
@@ -587,6 +656,8 @@ function getData(){
 }
 
 function elementClicked(element){
+    if(currentAction == null)
+        return;
     currentAction.elementSelected(element);
 }
 
@@ -612,7 +683,6 @@ UIElements = {
         deleteElement = id,
         saveMap = id,
     }
-
 }
 */
 function initMapEditor(UIElements){
@@ -698,6 +768,13 @@ function initMapEditor(UIElements){
         new EditElementAction(btn.editElement),
         new DeleteElementAction(btn.deleteElement)
     ];
+
+    addSegmentButton = document.getElementById(btn.addSegment);
+
+    $(addSegmentButton).click(function(){
+      //  console.log("Add segment clicked. Work in progress");
+        currentAction.addSegmentPressed();
+    });
 
 
     actionArray.forEach(function (action) {
