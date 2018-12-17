@@ -3,6 +3,7 @@ package pl.rosa.mapeditor.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by Maciej on 2018-11-02 11:34
@@ -69,5 +70,17 @@ public class Map {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    @OneToMany(mappedBy = "map",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<MapAccess> mapAccessList;
+
+    public List<MapAccess> getMapAccessList() {
+        return mapAccessList;
+    }
+
+    public void setMapAccessList(List<MapAccess> mapAccessList) {
+        this.mapAccessList = mapAccessList;
     }
 }

@@ -59,4 +59,16 @@ public class AppUser {
     public void setOwnedMaps(List<Map> ownedMaps) {
         this.ownedMaps = ownedMaps;
     }
+
+    @OneToMany(mappedBy = "appUser",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<MapAccess> mapAccessList;
+
+    public List<MapAccess> getMapAccessList() {
+        return mapAccessList;
+    }
+
+    public void setMapAccessList(List<MapAccess> mapAccessList) {
+        this.mapAccessList = mapAccessList;
+    }
 }
