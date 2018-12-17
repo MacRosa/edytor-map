@@ -64,10 +64,14 @@ class Element{
     constructor(shape, text){
         this.shape = shape;
         this.text = text;
+        this.editTextPos = false;
     }
 
     elementSelected() {}
-    selectionRemoved() {}
+    selectionRemoved() {
+        this.editTextPosSqr.remove();
+        this.editTextPos = false;
+    }
     moveStart() {}
     onMove(dx,dy) {}
 
@@ -78,6 +82,39 @@ class Element{
     stopAddingSegments() {}
 
     removePathSegment() {}
+
+    textDblClick() {
+        this.editTextPos = true;
+        this.editTextPosSqr = getRectFromElement(this.text);//.attr({x:x-5,y:y-5,width:width+5,height:height+5});
+        this.editTextPosSqr.attr({x: this.editTextPosSqr.attrs.x - 5, y: this.editTextPosSqr.attrs.y - 5,
+                                width: this.editTextPosSqr.attrs.width + 10, height: this.editTextPosSqr.attrs.height + 10})
+    }
+
+    textMoveStart(){
+        this.textCoords = {
+            x : this.text.attr("x"),
+            y : this.text.attr("y"),
+            tbx : this.editTextPosSqr.attr("x"),
+            tby : this.editTextPosSqr.attr("y"),
+        };
+        // noinspection JSUnresolvedVariable
+        if(this.textSelectionBox != null){
+            // noinspection JSUnresolvedVariable
+            this.textCoords.atbx = this.textSelectionBox.attr("x");
+            // noinspection JSUnresolvedVariable
+            this.textCoords.atby = this.textSelectionBox.attr("y");
+        }
+    }
+
+    textOnMove(dx,dy){
+        this.text.attr({x:this.textCoords.x+dx,y:this.textCoords.y+dy});
+        this.editTextPosSqr.attr({x:this.textCoords.tbx+dx,y:this.textCoords.tby+dy});
+        // noinspection JSUnresolvedVariable
+        if(this.textSelectionBox != null){
+            // noinspection JSUnresolvedVariable
+            this.textSelectionBox.attr({x:this.textCoords.atbx+dx,y:this.textCoords.atby+dy});
+        }
+    }
 }
 
 class PointElement extends Element{
@@ -93,11 +130,16 @@ class PointElement extends Element{
     }
 
     selectionRemoved() {
+        super.selectionRemoved();
         this.shapeSelectionBox.remove();
         this.textSelectionBox.remove();
     }
 
     moveStart(){
+        if(this.editTextPos){
+            this.textMoveStart();
+            return;
+        }
         this.startCoords = {
             sx : this.shape.attr("cx"),
             sy : this.shape.attr("cy"),
@@ -111,6 +153,10 @@ class PointElement extends Element{
     }
 
     onMove(dx,dy){
+        if(this.editTextPos){
+            this.textOnMove(dx,dy);
+            return;
+        }
         this.shape.attr({cx:this.startCoords.sx+dx,cy:this.startCoords.sy+dy});
         this.text.attr({x:this.startCoords.tx+dx,y:this.startCoords.ty+dy});
 
@@ -200,6 +246,7 @@ class LineElement extends Element{
     }
 
     selectionRemoved() {
+        super.selectionRemoved();
         this.textSelectionBox.remove();
         this.unselectSquare();
         this.removePathSelection();
@@ -227,6 +274,10 @@ class LineElement extends Element{
     }
 
     moveStart() {
+        if(this.editTextPos){
+            this.textMoveStart();
+            return;
+        }
         if(this.currentSquare != null){
             this.movePointStart();
             return;
@@ -248,6 +299,10 @@ class LineElement extends Element{
         );
     }
     onMove(dx,dy) {
+        if(this.editTextPos){
+            this.textOnMove(dx,dy);
+            return;
+        }
         if(this.currentSquare != null){
             this.onMovePoint(dx,dy);
             return;
@@ -524,7 +579,8 @@ class EditElementAction extends ButtonAction{
         this.onMovement = function(dx,dy) { tThis.isElementDragged = true; currentSelection.onMove(dx,dy);};
 
         this.currentSelection.shape.drag(this.onMovement,this.enterMovement);
-        this.currentSelection.text.drag(this.onMovement,this.enterMovement);
+        this.currentSelection.text.drag(this.onMovement,this.enterMovement)
+            .dblclick(function(){tThis.textDoubleClicked()});
 
         this.currentSelection.elementSelected();
 
@@ -539,6 +595,8 @@ class EditElementAction extends ButtonAction{
             this.currentSelection.selectionRemoved();
             this.currentSelection.shape.undrag();
             this.currentSelection.text.undrag();
+            // noinspection JSUnresolvedFunction
+            this.currentSelection.text.undblclick();
             this.currentSelection = null;
             nameInput.disabled = true;
         }
@@ -588,6 +646,10 @@ class EditElementAction extends ButtonAction{
         if(this.currentSelection != null){
             this.currentSelection.removePathSegment();
         }
+    }
+
+    textDoubleClicked(){
+        this.currentSelection.textDblClick();
     }
 
 }
