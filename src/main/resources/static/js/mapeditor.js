@@ -57,8 +57,8 @@ function getRectFromElement(element){
 let currentAction = null;
 let nameInput = null;
 let nameField = null;
-let currentSquare = null;
 let addSegmentButton = null;
+let deleteSegmentButton = null;
 
 class Element{
     constructor(shape, text){
@@ -76,6 +76,8 @@ class Element{
     startAddingSegments() {}
     segmentAdded(x, y) {}
     stopAddingSegments() {}
+
+    removePathSegment() {}
 }
 
 class PointElement extends Element{
@@ -134,14 +136,22 @@ class LineElement extends Element{
     constructor(shape, text){
         super(shape,text);
         this.path = shape.attr("path");
+        this.currentSquare = null;
+    }
+
+    unselectSquare(){
+        if(this.currentSquare != null){
+            this.currentSquare.selSquare.remove();
+            this.currentSquare = null;
+            deleteSegmentButton.disabled = true;
+        }
     }
 
     selectSquare(pathPoint, sq){
-        if(currentSquare != null){
-            currentSquare.selSquare.remove();
-        }
+        this.unselectSquare();
         let squareOfSelection = paper.rect(sq.attrs.x-5,sq.attrs.y-5,sq.attrs.width+10,sq.attrs.height+10);
-        currentSquare = { pointInPath: pathPoint, square: sq, selSquare: squareOfSelection, pathIndex : this.path.indexOf(pathPoint)};
+        this.currentSquare = { pointInPath: pathPoint, square: sq, selSquare: squareOfSelection, pathIndex : this.path.indexOf(pathPoint)};
+        deleteSegmentButton.disabled = false;
     }
 
     addSquare(element,x,y){
@@ -191,36 +201,33 @@ class LineElement extends Element{
 
     selectionRemoved() {
         this.textSelectionBox.remove();
-        if(currentSquare != null){
-            currentSquare.selSquare.remove();
-            currentSquare = null;
-        }
+        this.unselectSquare();
         this.removePathSelection();
         addSegmentButton.disabled = true;
     }
 
     movePointStart(){
         this.startCoords = {
-            px : currentSquare.pointInPath[1],
-            py : currentSquare.pointInPath[2],
-            sqx : currentSquare.square.attrs.x,
-            sqy : currentSquare.square.attrs.y,
-            ssqx : currentSquare.selSquare.attrs.x,
-            ssqy : currentSquare.selSquare.attrs.y
+            px : this.currentSquare.pointInPath[1],
+            py : this.currentSquare.pointInPath[2],
+            sqx : this.currentSquare.square.attrs.x,
+            sqy : this.currentSquare.square.attrs.y,
+            ssqx : this.currentSquare.selSquare.attrs.x,
+            ssqy : this.currentSquare.selSquare.attrs.y
         }
     }
 
     onMovePoint(dx, dy){
-        currentSquare.pointInPath[1] = this.startCoords.px + dx;
-        currentSquare.pointInPath[2] = this.startCoords.py + dy;
-        this.path[currentSquare.pathIndex] = currentSquare.pointInPath;
+        this.currentSquare.pointInPath[1] = this.startCoords.px + dx;
+        this.currentSquare.pointInPath[2] = this.startCoords.py + dy;
+        this.path[this.currentSquare.pathIndex] = this.currentSquare.pointInPath;
         this.shape.attr({path: this.path});
-        currentSquare.square.attr({x: this.startCoords.sqx+dx,y: this.startCoords.sqy + dy});
-        currentSquare.selSquare.attr({x: this.startCoords.ssqx+dx,y: this.startCoords.ssqy + dy});
+        this.currentSquare.square.attr({x: this.startCoords.sqx+dx,y: this.startCoords.sqy + dy});
+        this.currentSquare.selSquare.attr({x: this.startCoords.ssqx+dx,y: this.startCoords.ssqy + dy});
     }
 
     moveStart() {
-        if(currentSquare != null){
+        if(this.currentSquare != null){
             this.movePointStart();
             return;
         }
@@ -241,7 +248,7 @@ class LineElement extends Element{
         );
     }
     onMove(dx,dy) {
-        if(currentSquare != null){
+        if(this.currentSquare != null){
             this.onMovePoint(dx,dy);
             return;
         }
@@ -288,6 +295,16 @@ class LineElement extends Element{
     stopAddingSegments() {
         this.circle.remove();
     }
+
+    removePathSegment() {
+        if(this.currentSquare != null){
+            this.pointSet.exclude(this.currentSquare.square);
+            this.currentSquare.square.remove();
+            this.path.splice(this.currentSquare.pathIndex,1);
+            this.shape.attr({path:this.path});
+            this.unselectSquare();
+        }
+    }
 }
 
 class AreaElement extends LineElement{
@@ -313,10 +330,10 @@ class AreaElement extends LineElement{
         super.selectSquare(pathPoint, sq);
         let lastIndex = this.path.length-1;
 
-        if(currentSquare.pathIndex === 0){
+        if(this.currentSquare.pathIndex === 0){
             this.secondEndPoint = { pointInPath: this.path[lastIndex], pathIndex : lastIndex ,square : this.pointSet.items[lastIndex]};
         }
-        else if(currentSquare.pathIndex === lastIndex){
+        else if(this.currentSquare.pathIndex === lastIndex){
             this.secondEndPoint = { pointInPath: this.path[0], pathIndex : 0 ,square : this.pointSet.items[0]};
         }else {
             this.secondEndPoint = null;
@@ -567,6 +584,12 @@ class EditElementAction extends ButtonAction{
         }
     }
 
+    removeSegment(){
+        if(this.currentSelection != null){
+            this.currentSelection.removePathSegment();
+        }
+    }
+
 }
 
 function loadMap(mapDetails){
@@ -770,10 +793,16 @@ function initMapEditor(UIElements){
     ];
 
     addSegmentButton = document.getElementById(btn.addSegment);
+    deleteSegmentButton = document.getElementById(btn.deleteSegment);
 
     $(addSegmentButton).click(function(){
-      //  console.log("Add segment clicked. Work in progress");
         currentAction.addSegmentPressed();
+    });
+
+    $(deleteSegmentButton).click(function(){
+        if(currentAction instanceof EditElementAction){
+            currentAction.removeSegment();
+        }
     });
 
 
@@ -805,8 +834,8 @@ function initMapEditor(UIElements){
         }
         currentAction.screenClicked(posX,posY);
 
-
     }
+
 
     $("#"+UIElements.area.id).bind('click',clickArea);
 
