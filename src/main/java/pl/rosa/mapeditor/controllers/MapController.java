@@ -59,6 +59,7 @@ public class MapController {
 
         AppUser user = appUserService.getAppUser(loggedUser.getLoggedUser());
         modelAndView.addObject("ownedmaps", user.getOwnedMaps());
+        modelAndView.addObject("sharedmaps",user.getMapAccessList());
 
         if (addmap.equals("mapadded")) {
             modelAndView.addObject("mapadded", true);
@@ -148,8 +149,6 @@ public class MapController {
                 }
             }
             return modelAndView;
-            //return objectMapper.writeValueAsString(mapDetails);
-
         } catch (MapNotFoundException e) {
             return new ModelAndView("error");
         } catch (@SuppressWarnings({"TryWithIdenticalCatches", "RedundantSuppression"}) NoAccessToMapException e) {

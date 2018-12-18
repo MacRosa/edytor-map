@@ -39,6 +39,7 @@
                     </tbody>
                 </table>
             </div>
+
             <div th:if="${ownedmaps.isEmpty()}">
                 <p>List is empty.</p>
             </div>
@@ -47,8 +48,33 @@
             </div>
         </div>
         <div class="container mt-5">
+            <!--/*@thymesVar id="sharedmaps" type="java.util.List<pl.rosa.mapeditor.models.MapAccess>"*/-->
             <h2> Shared maps</h2>
-            <p>This site is under construction.</p>
+            <div th:unless="${sharedmaps.isEmpty()}">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col"> Name </th>
+                            <th scope="col"> Owner</th>
+                            <th scope="col"> Access </th>
+                        </tr>
+                    </thead>
+                    <tbody data-link="row" class="rowlink">
+                    <tr th:each="mapAccess : ${sharedmaps}">
+                        <td>
+                            <span th:text="${mapAccess.map.name}"></span>
+                            <a th:href="@{/map/show/{map_id}(map_id=${mapAccess.map.id})}"> </a>
+                        </td>
+                        <td th:text="${mapAccess.map.owner.name}"></td>
+                        <td th:if="${mapAccess.accessType} == 'r'">Read</td>
+                        <td th:if="${mapAccess.accessType} == 'w'">Write</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${sharedmaps.isEmpty()}">
+                <p>List is empty</p>
+            </div>
         </div>
     </body>
     <div th:replace="fragments/scripts :: scripts"></div>
