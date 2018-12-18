@@ -24,9 +24,31 @@
             <div th:if="${@mapService.currentUserCanEdit(model)}" class="container">
                 <a class="btn btn-primary" th:href="@{/map/edit/{map_id}(map_id=${model.id})}">Edit</a>
             </div>
-            <div id="mapView" style="width: 500px; height: 500px;">
+            <div id="mapView" style="width: 500px; height: 500px;"></div>
+            <br/>
+            <div class="container" th:if="${@mapService.currentUserIsOwner(model)}">
+                <h2>Contributors</h2>
+                <div th:unless="${model.mapAccessList.isEmpty()}">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col"> Name </th>
+                            <th scope="col"> Access </th>
+                        </tr>
+                        </thead>
+                        <tr th:each="mapAccess : ${model.mapAccessList}">
+                            <td th:text="${mapAccess.appUser.name}"></td>
+                            <td th:if="${mapAccess.accessType} == 'r'">Read</td>
+                            <td th:if="${mapAccess.accessType} == 'w'">Write</td>
+                        </tr>
+                    </table>
+                </div>
+                <div th:if="${model.mapAccessList.isEmpty()}">
+                    <p>No contributors.</p>
+                </div>
             </div>
         </div>
+
         <div th:if="${notfound}" class="container mt-5">
             <h2>Error</h2>
             <p>Map not found.</p>

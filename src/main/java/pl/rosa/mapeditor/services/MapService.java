@@ -86,4 +86,10 @@ public class MapService {
             return false;
         return userCanEdit(loggedUser.getLoggedUser().getAppUser(),map);
     }
+
+    public boolean currentUserIsOwner(Map map){
+        if(!loggedUser.isLogged())
+            return false;
+        return isOwner(loggedUser.getLoggedUser().getAppUser(),map);
+    }
 }
