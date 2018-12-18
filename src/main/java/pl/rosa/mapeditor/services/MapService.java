@@ -8,8 +8,12 @@ import pl.rosa.mapeditor.exceptions.NoAccessToMapException;
 import pl.rosa.mapeditor.login.LoggedUser;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.models.Map;
+import pl.rosa.mapeditor.models.MapAccess;
+import pl.rosa.mapeditor.repositories.MapAccessRepository;
 import pl.rosa.mapeditor.repositories.MapRepository;
 import pl.rosa.mapeditor.viewmodels.MapViewModel;
+
+import java.util.Optional;
 
 /**
  * Created by Maciej on 2018-11-03 10:20
@@ -21,12 +25,14 @@ public class MapService {
     private MapRepository mapRepository;
     private AppUserService userService;
     private LoggedUser loggedUser;
+    private MapAccessRepository mapAccessRepository;
 
     @Autowired
-    public MapService(MapRepository mapRepository, AppUserService userService, LoggedUser loggedUser) {
+    public MapService(MapRepository mapRepository, AppUserService userService, LoggedUser loggedUser, MapAccessRepository mapAccessRepository) {
         this.mapRepository = mapRepository;
         this.userService = userService;
         this.loggedUser = loggedUser;
+        this.mapAccessRepository = mapAccessRepository;
     }
 
     public void addMap(MapViewModel mapViewModel) throws AppUserNotLoggedInException {
@@ -42,20 +48,37 @@ public class MapService {
         mapRepository.save(map);
     }
 
+    private boolean isOwner(AppUser user,Map map){
+        return user.getId().equals(map.getOwner().getId());
+    }
+
+    public boolean userCanRead(Map map,AppUser user){
+        if(isOwner(user,map)){
+            return true;
+        }
+        Optional<MapAccess> mapAccess = mapAccessRepository.findByMapIdAndAppUserId(map.getId(),user.getId());
+        return mapAccess.map(mapAccess1 -> mapAccess1.getAccessType().matches("[rw]")).orElse(false);
+    }
+
     public Map getMap(Long id) throws MapNotFoundException,NoAccessToMapException {
         Map map = mapRepository.findById(id).orElseThrow(MapNotFoundException::new);
         if(!map.getVisibility().matches("nonpublic|public")){
             if(!userService.isUserLoggedIn())
                 throw new NoAccessToMapException();
             AppUser user = loggedUser.getLoggedUser().getAppUser();
-            if(!user.getId().equals(map.getOwner().getId()))
+            if(!userCanRead(map,user))
                 throw new NoAccessToMapException();
         }
         return map;
     }
 
     public boolean userCanEdit(AppUser user, Map map) {
-        return user.getId().equals(map.getOwner().getId());
+        if(isOwner(user,map)){
+            return true;
+        }
+        Optional<MapAccess> mapAccessOption = mapAccessRepository.findByMapIdAndAppUserId(map.getId(),user.getId());
+
+        return mapAccessOption.map(mapAccess -> mapAccess.getAccessType().equals("w")).orElse(false);
     }
 
     public boolean currentUserCanEdit(Map map){
