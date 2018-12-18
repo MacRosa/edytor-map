@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.rosa.mapeditor.exceptions.UserNotFoundException;
 import pl.rosa.mapeditor.login.AppUserLogin;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.repositories.AppUserRepository;
@@ -32,7 +33,7 @@ public class AppUserService {
     }
 
     private void checkIfNameIsInUse(String name){
-        nameAlreadyInUse = (appUserRepository.findByName(name) != null);
+        nameAlreadyInUse = appUserRepository.findByName(name).isPresent();
 
     }
 
@@ -67,5 +68,9 @@ public class AppUserService {
     @Transactional
     public AppUser getAppUser(AppUserLogin appUserLogin){
         return  appUserRepository.findById(appUserLogin.getAppUser().getId()).orElse(null);
+    }
+
+    public AppUser getUserByName(String name) throws UserNotFoundException{
+        return appUserRepository.findByName(name).orElseThrow(UserNotFoundException::new);
     }
 }

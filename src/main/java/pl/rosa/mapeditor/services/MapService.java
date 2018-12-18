@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pl.rosa.mapeditor.exceptions.AppUserNotLoggedInException;
 import pl.rosa.mapeditor.exceptions.MapNotFoundException;
 import pl.rosa.mapeditor.exceptions.NoAccessToMapException;
+import pl.rosa.mapeditor.exceptions.UserNotFoundException;
 import pl.rosa.mapeditor.login.LoggedUser;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.models.Map;
@@ -91,5 +92,23 @@ public class MapService {
         if(!loggedUser.isLogged())
             return false;
         return isOwner(loggedUser.getLoggedUser().getAppUser(),map);
+    }
+
+    public void addContributor(String name,Map map,String accessType) throws UserNotFoundException, NoAccessToMapException {
+        if(!currentUserIsOwner(map))
+            throw new NoAccessToMapException();
+        AppUser user = userService.getUserByName(name);
+        Optional<MapAccess> mapAccessOptional = mapAccessRepository.findByMapIdAndAppUserId(map.getId(), user.getId());
+        MapAccess mapAccess;
+        if(mapAccessOptional.isPresent()){
+            mapAccess = mapAccessOptional.get();
+            mapAccess.setAccessType(accessType);
+        }else{
+            mapAccess = new MapAccess();
+            mapAccess.setMap(map);
+            mapAccess.setAppUser(user);
+            mapAccess.setAccessType(accessType);
+        }
+        mapAccessRepository.save(mapAccess);
     }
 }
