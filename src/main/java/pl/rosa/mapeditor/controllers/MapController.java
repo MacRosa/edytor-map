@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.rosa.mapeditor.exceptions.AppUserNotLoggedInException;
 import pl.rosa.mapeditor.exceptions.MapNotFoundException;
 import pl.rosa.mapeditor.exceptions.NoAccessToMapException;
+import pl.rosa.mapeditor.exceptions.UserNotFoundException;
 import pl.rosa.mapeditor.login.LoggedUser;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.models.Map;
@@ -198,5 +199,26 @@ public class MapController {
         } catch (MapNotFoundException | NoAccessToMapException | TransformerException e) {
             return new byte[0];
         }
+    }
+
+
+    @PostMapping("/map/addcontributor/{id}")
+    @ResponseBody
+    public String addContributor(@PathVariable("id")Long mapId,@RequestParam("username") String userName,
+                                    @RequestParam("accesstype")String accessType){
+        if(!accessType.matches("[rw]")){
+            return "Invalid value";
+        }
+        try {
+            Map map = mapService.getMap(mapId);
+            mapService.addContributor(userName,map,accessType);
+        } catch (MapNotFoundException e) {
+            return "Map not found.";
+        } catch (NoAccessToMapException e) {
+            return "No access to map.";
+        } catch (UserNotFoundException e) {
+            return "User not found.";
+        }
+        return "success";
     }
 }

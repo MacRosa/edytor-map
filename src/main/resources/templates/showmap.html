@@ -28,23 +28,47 @@
             <br/>
             <div class="container" th:if="${@mapService.currentUserIsOwner(model)}">
                 <h2>Contributors</h2>
-                <div th:unless="${model.mapAccessList.isEmpty()}">
-                    <table class="table table-hover">
+                <div th:class="${model.mapAccessList.isEmpty()}?'d-none'" id="tableDiv">
+                    <table class="table table-hover" id="contributorTable">
                         <thead>
-                        <tr>
-                            <th scope="col"> Name </th>
-                            <th scope="col"> Access </th>
-                        </tr>
+                            <tr>
+                                <th scope="col"> Name </th>
+                                <th scope="col"> Access </th>
+                            </tr>
                         </thead>
-                        <tr th:each="mapAccess : ${model.mapAccessList}">
-                            <td th:text="${mapAccess.appUser.name}"></td>
-                            <td th:if="${mapAccess.accessType} == 'r'">Read</td>
-                            <td th:if="${mapAccess.accessType} == 'w'">Write</td>
-                        </tr>
+                        <tbody>
+                            <tr th:each="mapAccess : ${model.mapAccessList}">
+                                <td th:text="${mapAccess.appUser.name}"></td>
+                                <td th:if="${mapAccess.accessType} == 'r'">Show</td>
+                                <td th:if="${mapAccess.accessType} == 'w'">Edit</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
-                <div th:if="${model.mapAccessList.isEmpty()}">
+                <div th:if="${model.mapAccessList.isEmpty()}" id="noContributors">
                     <p>No contributors.</p>
+                </div>
+                <div class="container">
+                    <form action="#" id="addContributor" class="form-inline">
+                        <div class="form-group mb-2">
+                            <label for="userName" class="my-1 mr-2">User name: </label>
+                            <input type="text" class="form-control" id="userName" name="username"/>
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <label for="accessType" class="my-1 mr-2">Access: </label>
+                            <select class="form-control" id="accessType" name="accesstype" >
+                                <option value="r">Show</option>
+                                <option value="w">Edit</option>
+                            </select>
+                        </div>
+                        <!--/*@thymesVar id="_csrf" type="org.springframework.security.web.csrf.CsrfToken"*/-->
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-primary mb-2">Add</button>
+                        <div class="form-group mb-2 mx-sm-3">
+                            <span class="text-danger" id="errorView"></span>
+                            <span class="text-success" id="successView"></span>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -66,8 +90,35 @@
             /*<![CDATA[*/
             let mapValue =   /*[[${model.id}]]*/ 0;
             let mapUrl = /*[[@{/map/svg/}]]*/ '/map/svg/';
+            let contributorRequestUrl = /*[[@{/map/addcontributor/}]]*/ '/map/addcontributor/';
             /*]]>*/
             let myMap = L.map('mapView', {zoom: 0, center: [250, 250], crs: L.CRS.Simple});
+            $("#addContributor").submit(function(){
+                $("#successView").empty();
+                $("#errorView").empty();
+
+                let formData = $(this).serializeArray().reduce(function(obj, item){
+                    obj[item.name] = item.value;
+                    return obj;
+                },{});
+                $.post(contributorRequestUrl+mapValue,
+                    formData,
+                    function(data){
+                        if(data === 'success'){
+                            $("#successView").text(data);
+                            let noContributors = $("#noContributors");
+                            if(noContributors.length){
+                                noContributors.remove();
+                                $("#tableDiv").removeAttr("class");
+                            }
+                            let accessString = formData.accesstype === 'w' ? "Edit" : "Show";
+                            $("#contributorTable tr:last").after("<tr><td>" + formData.username + "</td><td>" + accessString +"</td></tr>");
+                        }else{
+                            $("#errorView").text(data);
+                        }
+                    });
+                return false;
+            });
             let imageBounds = [ [0, 0], [500, 500] ];
             L.imageOverlay(mapUrl+mapValue,imageBounds).addTo(myMap);
         }
