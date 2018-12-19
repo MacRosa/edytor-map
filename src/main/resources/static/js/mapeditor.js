@@ -69,8 +69,10 @@ class Element{
 
     elementSelected() {}
     selectionRemoved() {
-        this.editTextPosSqr.remove();
-        this.editTextPos = false;
+        if(this.editTextPos){
+            this.editTextPosSqr.remove();
+            this.editTextPos = false;
+        }
     }
     moveStart() {}
     onMove(dx,dy) {}
