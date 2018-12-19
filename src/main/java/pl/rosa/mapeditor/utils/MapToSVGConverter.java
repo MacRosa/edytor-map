@@ -22,12 +22,15 @@ public class MapToSVGConverter {
 
     private final String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
 
+    private void buildPathString(StringBuilder stringBuilder,PathSegment pathSegment){
+        stringBuilder.append(pathSegment.getInstruction());
+        pathSegment.getParams().forEach(param -> stringBuilder.append(param).append(" "));
+    }
 
     private String pathToString(List<PathSegment> path){
         StringBuilder stringBuilder = new StringBuilder();
         path.forEach(pathSegment ->
-            stringBuilder.append(pathSegment.getInstruction()).append(pathSegment.getX()).append(",").append(pathSegment.getY())
-        );
+                buildPathString(stringBuilder,pathSegment));
         return stringBuilder.toString();
     }
 

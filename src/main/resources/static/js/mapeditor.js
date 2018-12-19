@@ -663,7 +663,9 @@ function loadMap(mapDetails){
             let pathArray = [];
             line.path.forEach( function(ps) {
                 // noinspection JSUnresolvedVariable
-                pathArray.push([ps.instruction,ps.x,ps.y]);
+                let segmentArray = [ps.instruction];
+                pathArray.push(segmentArray.concat(ps.params));
+         //       pathArray.push([ps.instruction,ps.x,ps.y]);
             });
             let areaShape = paper.path(pathArray).attr({fill:"cyan"});
             let text = paper.text(line.name.x,line.name.y,line.name.value);
@@ -679,7 +681,8 @@ function loadMap(mapDetails){
             let pathArray = [];
             line.path.forEach( function(ps) {
                 // noinspection JSUnresolvedVariable
-                pathArray.push([ps.instruction,ps.x,ps.y]);
+                let segmentArray = [ps.instruction];
+                pathArray.push(segmentArray.concat(ps.params));
             });
             let lineShape = paper.path(pathArray);
             let text = paper.text(line.name.x,line.name.y,line.name.value);

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import pl.rosa.mapeditor.models.map.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -21,15 +22,22 @@ public class JSONToMapConverter {
         return text;
     }
 
+    private PathSegment getPathSegment(JsonNode node){
+        PathSegment pathSegment = new PathSegment();
+        Iterator<JsonNode> nodeIterator = node.elements();
+        pathSegment.setInstruction(nodeIterator.next().asText().charAt(0));
+        List<Double> params = new ArrayList<>();
+        nodeIterator.forEachRemaining(jsonNode -> params.add(jsonNode.asDouble()));
+        pathSegment.setParams(params);
+        return pathSegment;
+    }
+
     private List<PathSegment> getPath(JsonNode node){
         List<PathSegment> path = new ArrayList<>();
         JsonNode pathSegmentsNode = node.get("path");
         pathSegmentsNode.elements().forEachRemaining(
                 jsonNode ->
-                    path.add(new PathSegment(
-                            jsonNode.get(0).asText().charAt(0),
-                            jsonNode.get(1).asDouble(),
-                            jsonNode.get(2).asDouble())));
+                    path.add(getPathSegment(jsonNode)));
         return path;
     }
 

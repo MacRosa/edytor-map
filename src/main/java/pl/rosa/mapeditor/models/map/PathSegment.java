@@ -1,44 +1,35 @@
 package pl.rosa.mapeditor.models.map;
 
+import java.util.List;
+
 /**
  * Created by Maciej on 2018-12-08 17:34
  */
 public class PathSegment {
-    private char Instruction;
-    private double X;
-    private double Y;
-
+    private Character Instruction;
+    private List<Double> params;
     public PathSegment(){
 
     }
 
-    public PathSegment(char instruction, double x, double y) {
+    public PathSegment(char instruction, List<Double> params) {
         Instruction = instruction;
-        X = x;
-        Y = y;
+        this.params = params;
     }
 
-    public char getInstruction() {
+    public Character getInstruction() {
         return Instruction;
     }
 
-    public void setInstruction(char instruction) {
+    public void setInstruction(Character instruction) {
         Instruction = instruction;
     }
 
-    public double getX() {
-        return X;
+    public List<Double> getParams() {
+        return params;
     }
 
-    public void setX(double x) {
-        X = x;
-    }
-
-    public double getY() {
-        return Y;
-    }
-
-    public void setY(double y) {
-        Y = y;
+    public void setParams(List<Double> params) {
+        this.params = params;
     }
 }
