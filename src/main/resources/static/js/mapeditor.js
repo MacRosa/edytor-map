@@ -31,6 +31,8 @@ let lastArea = null;
 let lastPoint = null;
 let lastLine = null;
 let lastText = null;
+let dragging = false;
+let dragStop = false;
 
 function insertPoint(point){
     point.insertBefore(lastPoint);
@@ -59,6 +61,7 @@ let nameInput = null;
 let nameField = null;
 let addSegmentButton = null;
 let deleteSegmentButton = null;
+let modCurve = null;
 
 class Element{
     constructor(shape, text){
@@ -184,6 +187,15 @@ function applyDiff(square,x,y){
     return {x : square.attrs.x+x, y: square.attrs.y+y};
 }
 
+function getMiddlePoint(p1,p2){
+    let p1l = p1.length;
+    let p2l = p2.length;
+    return {
+        x: (p1[p1l-2] + p2[p2l-2])/2,
+        y: (p1[p1l-1] + p2[p2l-1])/2
+    }
+}
+
 class LineElement extends Element{
     constructor(shape, text){
         super(shape,text);
@@ -196,8 +208,13 @@ class LineElement extends Element{
     unselectSquare(){
         if(this.currentSquare != null){
             this.currentSquare.selSquare.remove();
+            if(this.currentSquare.curveCircle != null){
+                this.currentSquare.curveCircle.remove();
+                this.currentSquare.curveCircle = null;
+            }
             this.currentSquare = null;
             deleteSegmentButton.disabled = true;
+            modCurve.disabled = true;
         }
     }
 
@@ -205,8 +222,13 @@ class LineElement extends Element{
         this.unselectSquare();
         let squareOfSelection = paper.rect(sq.attrs.x-5,sq.attrs.y-5,sq.attrs.width+10,sq.attrs.height+10);
         this.currentSquare = { pointInPath: pathPoint, square: sq, selSquare: squareOfSelection, pathIndex : this.path.indexOf(pathPoint)};
-        console.log("Point index: " + this.currentSquare.pathIndex);
         deleteSegmentButton.disabled = false;
+        modCurve.disabled = false;
+        if(pathPoint[0] === 'L'){
+            modCurve.innerHTML = "Add curve";
+        }else if(pathPoint[0] === 'Q'){
+            modCurve.innerHTML = "Modify curve";
+        }
     }
 
     addSquare(element,x,y){
@@ -260,8 +282,12 @@ class LineElement extends Element{
         let ndx = dx - this.ld.x;
         let ndy = dy - this.ld.y;
         let len = this.currentSquare.pointInPath.length;
-        this.currentSquare.pointInPath[len-2] = this.currentSquare.pointInPath[len-2] + ndx;
-        this.currentSquare.pointInPath[len-1] = this.currentSquare.pointInPath[len-1] + ndy;
+        this.currentSquare.pointInPath[len-2] += ndx;
+        this.currentSquare.pointInPath[len-1] += ndy;
+        if(this.currentSquare.pointInPath[0] === 'Q'){
+            this.currentSquare.pointInPath[1] += ndx;
+            this.currentSquare.pointInPath[2] += ndy;
+        }
         this.path[this.currentSquare.pathIndex] = this.currentSquare.pointInPath;
         this.shape.attr({path: this.path});
         this.currentSquare.square.attr(applyDiff(this.currentSquare.square,ndx,ndy));
@@ -296,8 +322,12 @@ class LineElement extends Element{
         this.pointSet.forEach(
             function(el){
                 let len = tThis.path[i].length;
-                tThis.path[i][len-2] = tThis.path[i][len-2]+ndx;
-                tThis.path[i][len-1] = tThis.path[i][len-1]+ndy;
+                tThis.path[i][len-2] += ndx;
+                tThis.path[i][len-1] += ndy;
+                if(tThis.path[i][0] === 'Q'){
+                    tThis.path[i][1] += ndx;
+                    tThis.path[i][2] += ndy;
+                }
                 el.attr(applyDiff(el,ndx,ndy));
                 i++;
             }
@@ -343,6 +373,81 @@ class LineElement extends Element{
             this.path.splice(this.currentSquare.pathIndex,1);
             this.shape.attr({path:this.path});
             this.unselectSquare();
+        }
+    }
+
+    modifyCurve(){
+        if(this.currentSquare != null){
+            console.log("curve");
+            if(this.currentSquare.curveCircle != null){
+                console.log("deleting curve");
+                if(this.currentSquare.pointInPath[0] === 'Q'){
+                    let len = this.currentSquare.pointInPath.length;
+                    this.currentSquare.pointInPath = ['L',this.currentSquare.pointInPath[len-2],this.currentSquare.pointInPath[len-1]];
+                    this.path[this.currentSquare.pathIndex] = this.currentSquare.pointInPath;
+                    this.shape.attr({path:this.path});
+                    this.currentSquare.curveCircle.remove();
+                    this.currentSquare.curveCircle = null;
+                    modCurve.innerHTML = "Add curve";
+                }
+                return;
+            }
+            if(this.currentSquare.pointInPath[0] === 'L'){
+                console.log("adding curve");
+                let previousPoint = this.path[this.currentSquare.pathIndex-1];
+                let middle = getMiddlePoint(this.currentSquare.pointInPath,previousPoint);
+                this.currentSquare.pointInPath = ['Q',middle.x,middle.y,this.currentSquare.pointInPath[1],this.currentSquare.pointInPath[2]];
+                this.path[this.currentSquare.pathIndex] = this.currentSquare.pointInPath;
+                let tThis = this;
+                this.currentSquare.curveCircle = paper.circle(middle.x,middle.y,5).attr({fill:"black",'fill-opacity':'0.0',stroke:"black"})
+                    .drag(
+                        function(dx,dy) {
+                            let ndx = dx - this.ld.x;
+                            let ndy = dy - this.ld.y;
+                            this.attr({cx : this.attrs.cx+ndx, cy : this.attrs.cy+ndy});
+                            tThis.currentSquare.pointInPath[1] = this.attrs.cx;
+                            tThis.currentSquare.pointInPath[2] = this.attrs.cy;
+                            tThis.path[tThis.currentSquare.pathIndex] = tThis.currentSquare.pointInPath;
+                            tThis.shape.attr({path:tThis.path});
+                            this.ld.x = dx;
+                            this.ld.y = dy;
+                        },
+                        function() {
+                            this.ld = {x: 0, y: 0};
+                            dragging = true;
+                        },
+                        function(){
+                            dragStop = true;
+                        }
+                    );
+                modCurve.innerHTML = "Remove curve";
+            }else if(this.currentSquare.pointInPath[0] === 'Q'){
+                console.log("modifying curve");
+                let tThis = this;
+                let point = this.currentSquare.pointInPath;
+                this.currentSquare.curveCircle = paper.circle(point[1],point[2],5).attr({fill:"black",'fill-opacity':'0.0',stroke:"black"})
+                    .drag(
+                        function(dx,dy) {
+                            let ndx = dx - this.ld.x;
+                            let ndy = dy - this.ld.y;
+                            this.attr({cx : this.attrs.cx+ndx, cy : this.attrs.cy+ndy});
+                            tThis.currentSquare.pointInPath[1] = this.attrs.cx;
+                            tThis.currentSquare.pointInPath[2] = this.attrs.cy;
+                            tThis.path[tThis.currentSquare.pathIndex] = tThis.currentSquare.pointInPath;
+                            tThis.shape.attr({path:tThis.path});
+                            this.ld.x = dx;
+                            this.ld.y = dy;
+                        },
+                        function() {
+                            this.ld = {x: 0, y: 0};
+                            dragging = true;
+                        },
+                        function(){
+                            dragStop = true;
+                        }
+                    );
+                modCurve.innerHTML = "Remove curve";
+            }
         }
     }
 }
@@ -483,6 +588,7 @@ class AddLineAction extends ButtonAction {
         this.path = null;
         this.pathArray = null;
     }
+
 }
 
 class AddAreaAction extends AddLineAction {
@@ -526,7 +632,13 @@ class EditElementAction extends ButtonAction{
             return;
         }
         if(!this.isElementSelected && !this.isElementDragged){
-            this.removeSelection();
+            if(!dragging){
+                this.removeSelection();
+            }
+            if(dragStop){
+                dragging = false;
+                dragStop = false;
+            }
         }else{
             this.isElementSelected = false;
             this.isElementDragged = false;
@@ -615,6 +727,12 @@ class EditElementAction extends ButtonAction{
         this.currentSelection.textDblClick();
     }
 
+
+    modifyCurveForPoint(){
+        if(this.currentSelection instanceof LineElement){
+            this.currentSelection.modifyCurve();
+        }
+    }
 }
 
 function loadMap(mapDetails){
@@ -733,6 +851,9 @@ UIElements = {
         editElement = id,
         deleteElement = id,
         saveMap = id,
+        addSegment: "addSegment",
+        deleteSegment: "deleteSegment",
+        curveMod: "curveMod"
     }
 }
 */
@@ -822,9 +943,16 @@ function initMapEditor(UIElements){
 
     addSegmentButton = document.getElementById(btn.addSegment);
     deleteSegmentButton = document.getElementById(btn.deleteSegment);
+    modCurve = document.getElementById(btn.curveMod);
 
     $(addSegmentButton).click(function(){
         currentAction.addSegmentPressed();
+    });
+
+    $(modCurve).click(function(){
+        if(currentAction instanceof EditElementAction){
+            currentAction.modifyCurveForPoint();
+        }
     });
 
     $(deleteSegmentButton).click(function(){
@@ -861,7 +989,6 @@ function initMapEditor(UIElements){
             return;
         }
         currentAction.screenClicked(posX,posY);
-
     }
 
 
