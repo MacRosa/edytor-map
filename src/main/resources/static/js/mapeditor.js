@@ -180,12 +180,18 @@ class PointElement extends Element{
 
 }
 
+function applyDiff(square,x,y){
+    return {x : square.attrs.x+x, y: square.attrs.y+y};
+}
+
 class LineElement extends Element{
     constructor(shape, text){
         super(shape,text);
         this.path = shape.attr("path");
         this.currentSquare = null;
+        this.pointSet = paper.set();
     }
+
 
     unselectSquare(){
         if(this.currentSquare != null){
@@ -199,6 +205,7 @@ class LineElement extends Element{
         this.unselectSquare();
         let squareOfSelection = paper.rect(sq.attrs.x-5,sq.attrs.y-5,sq.attrs.width+10,sq.attrs.height+10);
         this.currentSquare = { pointInPath: pathPoint, square: sq, selSquare: squareOfSelection, pathIndex : this.path.indexOf(pathPoint)};
+        console.log("Point index: " + this.currentSquare.pathIndex);
         deleteSegmentButton.disabled = false;
     }
 
@@ -210,29 +217,23 @@ class LineElement extends Element{
         this.pointSet.push(sqr);
     }
 
+
     selectPath(){
-        paper.setStart();
         let tThis = this;
         if(currentAction instanceof EditElementAction){
             this.path.forEach(
                 function(element){
-                    paper.rect(element[1]-5,element[2]-5,10,10).attr({fill:"black"})
-                        .drag(currentAction.onMovement,currentAction.enterMovement)
-                        .dblclick(function(){
-                                    tThis.selectSquare(element,this);
-                                    });
-
+                    let len = element.length;
+                    tThis.addSquare(element,element[len-2],element[len-1]);
                 }
             );
         }else{
-            this.path.forEach(
+            this.shape.attrs.path.forEach(
                 function(element){
                     paper.rect(element[1]-5,element[2]-5,10,10).attr({fill:"black"});
                 }
             );
         }
-
-        this.pointSet = paper.setFinish();
     }
 
     removePathSelection(){
@@ -255,24 +256,18 @@ class LineElement extends Element{
         addSegmentButton.disabled = true;
     }
 
-    movePointStart(){
-        this.startCoords = {
-            px : this.currentSquare.pointInPath[1],
-            py : this.currentSquare.pointInPath[2],
-            sqx : this.currentSquare.square.attrs.x,
-            sqy : this.currentSquare.square.attrs.y,
-            ssqx : this.currentSquare.selSquare.attrs.x,
-            ssqy : this.currentSquare.selSquare.attrs.y
-        }
-    }
-
     onMovePoint(dx, dy){
-        this.currentSquare.pointInPath[1] = this.startCoords.px + dx;
-        this.currentSquare.pointInPath[2] = this.startCoords.py + dy;
+        let ndx = dx - this.ld.x;
+        let ndy = dy - this.ld.y;
+        let len = this.currentSquare.pointInPath.length;
+        this.currentSquare.pointInPath[len-2] = this.currentSquare.pointInPath[len-2] + ndx;
+        this.currentSquare.pointInPath[len-1] = this.currentSquare.pointInPath[len-1] + ndy;
         this.path[this.currentSquare.pathIndex] = this.currentSquare.pointInPath;
         this.shape.attr({path: this.path});
-        this.currentSquare.square.attr({x: this.startCoords.sqx+dx,y: this.startCoords.sqy + dy});
-        this.currentSquare.selSquare.attr({x: this.startCoords.ssqx+dx,y: this.startCoords.ssqy + dy});
+        this.currentSquare.square.attr(applyDiff(this.currentSquare.square,ndx,ndy));
+        this.currentSquare.selSquare.attr(applyDiff(this.currentSquare.selSquare,ndx, ndy));
+        this.ld.x = dx;
+        this.ld.y = dy;
     }
 
     moveStart() {
@@ -280,26 +275,9 @@ class LineElement extends Element{
             this.textMoveStart();
             return;
         }
-        if(this.currentSquare != null){
-            this.movePointStart();
-            return;
-        }
-        this.startCoords = {
-            px :  [],
-            py :  [],
-            tx : this.text.attr("x"),
-            ty : this.text.attr("y"),
-            tbx : this.textSelectionBox.attr("x"),
-            tby : this.textSelectionBox.attr("y")
-        };
-        let pst = this.startCoords;
-        this.pointSet.forEach(
-            function (el) {
-                pst.px.push(el.attr("x"));
-                pst.py.push(el.attr("y"));
-            }
-        );
+        this.ld = {x: 0, y: 0};
     }
+
     onMove(dx,dy) {
         if(this.editTextPos){
             this.textOnMove(dx,dy);
@@ -309,19 +287,24 @@ class LineElement extends Element{
             this.onMovePoint(dx,dy);
             return;
         }
-        this.text.attr({x: this.startCoords.tx+dx,y: this.startCoords.ty+dy});
-        this.textSelectionBox.attr({x:this.startCoords.tbx+dx,y:this.startCoords.tby+dy});
+        let ndx = dx - this.ld.x;
+        let ndy = dy - this.ld.y;
+        this.text.attr(applyDiff(this.text,ndx,ndy));
+        this.textSelectionBox.attr(applyDiff(this.textSelectionBox,ndx,ndy));
         let i = 0;
         let tThis = this;
         this.pointSet.forEach(
             function(el){
-                tThis.path[i][1] = tThis.startCoords.px[i]+dx+5;
-                tThis.path[i][2] = tThis.startCoords.py[i]+dy+5;
-                el.attr({x : tThis.startCoords.px[i]+dx,y : tThis.startCoords.py[i]+dy});
+                let len = tThis.path[i].length;
+                tThis.path[i][len-2] = tThis.path[i][len-2]+ndx;
+                tThis.path[i][len-1] = tThis.path[i][len-1]+ndy;
+                el.attr(applyDiff(el,ndx,ndy));
                 i++;
             }
         );
         this.shape.attr({path:tThis.path});
+        this.ld.x = dx;
+        this.ld.y = dy;
 
     }
 
@@ -368,38 +351,16 @@ class AreaElement extends LineElement{
 
     constructor(shape, text){
         super(shape, text);
-        this.secondEndPoint = null;
-    }
-
-    onMovePoint(dx, dy){
-        super.onMovePoint(dx, dy);
-        if(this.secondEndPoint === null)
-            return;
-        this.secondEndPoint.pointInPath[1] = this.startCoords.px + dx;
-        this.secondEndPoint.pointInPath[2] = this.startCoords.py + dy;
-        this.path[this.secondEndPoint.pathIndex] = this.secondEndPoint.pointInPath;
-        this.shape.attr({path: this.path});
-        this.secondEndPoint.square.attr({x: this.startCoords.sqx+dx,y: this.startCoords.sqy + dy});
     }
 
 
-    selectSquare(pathPoint, sq){
-        super.selectSquare(pathPoint, sq);
-        let lastIndex = this.path.length-1;
-
-        if(this.currentSquare.pathIndex === 0){
-            this.secondEndPoint = { pointInPath: this.path[lastIndex], pathIndex : lastIndex ,square : this.pointSet.items[lastIndex]};
-        }
-        else if(this.currentSquare.pathIndex === lastIndex){
-            this.secondEndPoint = { pointInPath: this.path[0], pathIndex : 0 ,square : this.pointSet.items[0]};
-        }else {
-            this.secondEndPoint = null;
-        }
+    selectPath(){
+        super.selectPath();
+        this.pointSet.pop().remove();
     }
 
     selectionRemoved() {
         super.selectionRemoved();
-        this.secondEndPoint = null;
     }
 
 
@@ -531,7 +492,7 @@ class AddAreaAction extends AddLineAction {
 
     enterPressed(){
         super.enterPressed();
-        this.pathArray.push(["L",this.pathArray[0][1],this.pathArray[0][2]]);
+        this.pathArray.push(["Z"]);
         this.path.attr({path:this.pathArray,fill:"cyan"});
     }
 
