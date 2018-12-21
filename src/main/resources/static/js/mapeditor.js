@@ -233,7 +233,7 @@ class LineElement extends Element{
 
     addSquare(element,x,y){
         let tThis = this;
-        let sqr = paper.rect(x-5,y-5,10,10).attr({fill:"black"})
+        let sqr = paper.rect(x-5,y-5,10,10).attr({fill:"black",'fill-opacity':'0.0'})
             .drag(currentAction.onMovement,currentAction.enterMovement)
             .dblclick(function(){tThis.selectSquare(element,this)});
         this.pointSet.push(sqr);
@@ -352,8 +352,9 @@ class LineElement extends Element{
 
     startAddingSegments() {
         let point = this.path[this.path.length-1];
-        this.circle = paper.circle(point[1],point[2],10);
+        this.circle = paper.circle(point[point.length-2],point[point.length-1],10);
     }
+
     segmentAdded(x, y) {
         let element = ['L',x,y];
         this.path.push(element);
@@ -370,6 +371,10 @@ class LineElement extends Element{
         if(this.currentSquare != null){
             this.pointSet.exclude(this.currentSquare.square);
             this.currentSquare.square.remove();
+            if(this.currentSquare.pointInPath[0] === 'M'){
+                let next = this.path[this.currentSquare.pathIndex+1];
+                this.path[this.currentSquare.pathIndex+1] = ['M',next[next.length-2],next[next.length-1]];
+            }
             this.path.splice(this.currentSquare.pathIndex,1);
             this.shape.attr({path:this.path});
             this.unselectSquare();
@@ -378,9 +383,7 @@ class LineElement extends Element{
 
     modifyCurve(){
         if(this.currentSquare != null){
-            console.log("curve");
             if(this.currentSquare.curveCircle != null){
-                console.log("deleting curve");
                 if(this.currentSquare.pointInPath[0] === 'Q'){
                     let len = this.currentSquare.pointInPath.length;
                     this.currentSquare.pointInPath = ['L',this.currentSquare.pointInPath[len-2],this.currentSquare.pointInPath[len-1]];
@@ -393,7 +396,6 @@ class LineElement extends Element{
                 return;
             }
             if(this.currentSquare.pointInPath[0] === 'L'){
-                console.log("adding curve");
                 let previousPoint = this.path[this.currentSquare.pathIndex-1];
                 let middle = getMiddlePoint(this.currentSquare.pointInPath,previousPoint);
                 this.currentSquare.pointInPath = ['Q',middle.x,middle.y,this.currentSquare.pointInPath[1],this.currentSquare.pointInPath[2]];
@@ -422,7 +424,6 @@ class LineElement extends Element{
                     );
                 modCurve.innerHTML = "Remove curve";
             }else if(this.currentSquare.pointInPath[0] === 'Q'){
-                console.log("modifying curve");
                 let tThis = this;
                 let point = this.currentSquare.pointInPath;
                 this.currentSquare.curveCircle = paper.circle(point[1],point[2],5).attr({fill:"black",'fill-opacity':'0.0',stroke:"black"})
@@ -477,7 +478,7 @@ class AreaElement extends LineElement{
 
     startAddingSegments() {
         let point = this.path[this.path.length-2];
-        this.circle = paper.circle(point[1],point[2],10);
+        this.circle = paper.circle(point[point.length-2],point[point.length-1],10);
     }
 
     segmentAdded(x, y) {
