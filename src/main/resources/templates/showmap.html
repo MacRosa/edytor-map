@@ -120,7 +120,13 @@
                 return false;
             });
             let imageBounds = [ [0, 0], [500, 500] ];
-            L.imageOverlay(mapUrl+mapValue,imageBounds).addTo(myMap);
+            let overlay = L.imageOverlay(mapUrl+mapValue,imageBounds);
+            overlay.addTo(myMap);
+            overlay.on('load',function() {
+                console.log(this._image.naturalWidth);
+                overlay.setBounds([ [0,0], [this._image.naturalHeight,this._image.naturalWidth] ]);
+            });
+
         }
     </script>
 </html>

@@ -43,7 +43,7 @@ public class JSONToMapConverter {
 
     public MapDetails getMapFromJson(JsonNode node){
         MapDetails mapDetails = new MapDetails();
-        mapDetails.setWidth(node.get("height").asDouble());
+        mapDetails.setWidth(node.get("width").asDouble());
         mapDetails.setHeight(node.get("height").asDouble());
         JsonNode pointsNode = node.get("points");
         List<Point> points = new ArrayList<>();

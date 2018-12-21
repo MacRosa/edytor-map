@@ -34,6 +34,13 @@
             <br/>
             <label for="nameInput">Name:</label>
             <input type="text" id="nameInput" disabled />
+            <div>
+                <label for="mapWidth">Map width:</label>
+                <input type="number" id="mapWidth"/>
+                <label for="mapHeight"> Map height:</label>
+                <input type="number" id="mapHeight"/>
+                <button id="setMapSize">Set</button>
+            </div>
             <br />
             <br />
             <form th:action="@{/map/edit/{map_id}(map_id=${model.id})}" method="POST" id="saveMap">
@@ -89,8 +96,11 @@
                                    moveMap : "moveMap",
                                    addSegment: "addSegment",
                                    deleteSegment: "deleteSegment",
-                                   curveMod: "curveMod"
+                                   curveMod: "curveMod",
+                                   setMapSize: "setMapSize"
                                },
+                               mapWidth : "mapWidth",
+                               mapHeight : "mapHeight",
                                saveMap : "saveMap"
                            }
                        );

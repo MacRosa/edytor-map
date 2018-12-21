@@ -33,6 +33,7 @@ let lastLine = null;
 let lastText = null;
 let dragging = false;
 let dragStop = false;
+let mapRect = null;
 
 function insertPoint(point){
     point.insertBefore(lastPoint);
@@ -751,6 +752,9 @@ class EditElementAction extends ButtonAction{
 
 function loadMap(mapDetails){
 
+    mapRect.attr({width: mapDetails.width, height: mapDetails.height});
+
+
     mapDetails.areas.forEach(
         function(line){
             let pathArray = [];
@@ -798,8 +802,8 @@ function loadMap(mapDetails){
 
 function getData(){
     let mapData = {
-        width : paper.width,
-        height : paper.height,
+        width : mapRect.attrs.width,
+        height : mapRect.attrs.height,
         points : [],
         lines : [],
         areas : [],
@@ -868,15 +872,18 @@ UIElements = {
         saveMap = id,
         addSegment: "addSegment",
         deleteSegment: "deleteSegment",
-        curveMod: "curveMod"
+        curveMod: "curveMod",
+        setMapSize: id
     }
+    mapHeight : id,
+    mapWidth : id,
 }
 */
 function initMapEditor(UIElements){
 
     paper = Raphael(UIElements.area.id,UIElements.area.width,UIElements.area.height);
-    paper.setViewBox(0,0,500,500);
-    paper.rect(0,0,paper.width,paper.height)
+    paper.setViewBox(0,0,paper.width,paper.height);
+    mapRect = paper.rect(0,0,paper.width,paper.height)
         .drag(
             function(dx,dy){
                 if(!movingMap)
@@ -892,6 +899,7 @@ function initMapEditor(UIElements){
                 this.lastd = {x: 0,y: 0};
             }
         ).attr({fill:"white"});
+
     nameInput = document.getElementById(UIElements.nameInput);
 
     lastArea = paper.circle(0,0,0).hide();
@@ -1024,6 +1032,12 @@ function initMapEditor(UIElements){
         posY +=  paper._viewBox[1];
         currentAction.screenClicked(posX,posY);
     }
+
+    let mapWidth = $("#" + UIElements.mapWidth);
+    let mapHeight = $("#" + UIElements.mapHeight);
+    $("#" + UIElements.buttons.setMapSize).click(function(){
+        mapRect.attr({width: mapWidth.val(),height: mapHeight.val()});
+    });
 
 
     $("#"+UIElements.area.id).bind('click',clickArea);
