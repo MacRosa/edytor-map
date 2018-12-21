@@ -506,6 +506,19 @@ class ButtonAction {
     addSegmentPressed() {}
 }
 
+let movingMap = true;
+
+class MoveMapAction extends ButtonAction{
+
+    actionSelected(){
+        movingMap = true;
+    }
+
+    selectionRemoved(){
+        movingMap = false;
+    }
+}
+
 class AddPointAction extends ButtonAction {
     constructor(element){
         super(element);
@@ -851,6 +864,7 @@ UIElements = {
         addArea = id,
         editElement = id,
         deleteElement = id,
+        moveMap = id,
         saveMap = id,
         addSegment: "addSegment",
         deleteSegment: "deleteSegment",
@@ -861,7 +875,23 @@ UIElements = {
 function initMapEditor(UIElements){
 
     paper = Raphael(UIElements.area.id,UIElements.area.width,UIElements.area.height);
-    paper.rect(0,0,paper.width,paper.height);
+    paper.setViewBox(0,0,500,500);
+    paper.rect(0,0,paper.width,paper.height)
+        .drag(
+            function(dx,dy){
+                if(!movingMap)
+                    return;
+                let viewBox = paper._viewBox;
+                paper.setViewBox(viewBox[0]-(dx-this.lastd.x),viewBox[1]-(dy-this.lastd.y),500,500);
+                this.lastd.x = dx;
+                this.lastd.y = dy;
+            },
+            function() {
+                if(!movingMap)
+                    return;
+                this.lastd = {x: 0,y: 0};
+            }
+        ).attr({fill:"white"});
     nameInput = document.getElementById(UIElements.nameInput);
 
     lastArea = paper.circle(0,0,0).hide();
@@ -890,9 +920,6 @@ function initMapEditor(UIElements){
             nameInput.focus();
         }
     });
-
-
-
     class DeleteElementAction extends ButtonAction {
         constructor(element){
             super(element);
@@ -935,12 +962,14 @@ function initMapEditor(UIElements){
     let btn = UIElements.buttons;
 
     let actionArray = [
+        new MoveMapAction(btn.moveMap),
         new AddPointAction(btn.addPoint),
         new AddLineAction(btn.addLine),
         new AddAreaAction(btn.addArea),
         new EditElementAction(btn.editElement),
         new DeleteElementAction(btn.deleteElement)
     ];
+
 
     addSegmentButton = document.getElementById(btn.addSegment);
     deleteSegmentButton = document.getElementById(btn.deleteSegment);
@@ -977,6 +1006,8 @@ function initMapEditor(UIElements){
         );
     });
 
+    currentAction = actionArray[0];
+
     function clickArea(event) {
         let posX = event.pageX - $(this).position().left;
         let posY = event.pageY - $(this).position().top;
@@ -989,6 +1020,8 @@ function initMapEditor(UIElements){
             alert("Choose action.");
             return;
         }
+        posX +=  paper._viewBox[0];
+        posY +=  paper._viewBox[1];
         currentAction.screenClicked(posX,posY);
     }
 
