@@ -17,7 +17,7 @@
         <div th:replace="fragments/navbar :: navbar" ></div>
         <div th:unless="${notfound || noaccess || cantedit}" class="container mt-5">
             <div id="actionDescription"> Action description (work in progress).</div>
-            <div id="drawArea"></div>
+            <div id="drawArea" style="touch-action: none"></div>
             <div>
                 <button id="moveMap" disabled>Move</button>
                 <button id="addPoint">Add point</button>
@@ -34,6 +34,7 @@
             <br/>
             <label for="nameInput">Name:</label>
             <input type="text" id="nameInput" disabled />
+            <button id="enterBtn">Enter</button>
             <div>
                 <label for="mapWidth">Map width:</label>
                 <input type="number" id="mapWidth"/>
@@ -97,7 +98,8 @@
                                    addSegment: "addSegment",
                                    deleteSegment: "deleteSegment",
                                    curveMod: "curveMod",
-                                   setMapSize: "setMapSize"
+                                   setMapSize: "setMapSize",
+                                   enter: "enterBtn"
                                },
                                mapWidth : "mapWidth",
                                mapHeight : "mapHeight",

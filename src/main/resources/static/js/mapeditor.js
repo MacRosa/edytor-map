@@ -63,6 +63,7 @@ let nameField = null;
 let addSegmentButton = null;
 let deleteSegmentButton = null;
 let modCurve = null;
+let enterButton = null;
 
 class Element{
     constructor(shape, text){
@@ -510,13 +511,22 @@ class ButtonAction {
 let movingMap = true;
 
 class MoveMapAction extends ButtonAction{
-
     actionSelected(){
-        movingMap = true;
+        mapRect.drag(
+           function(dx,dy){
+               let viewBox = paper._viewBox;
+               paper.setViewBox(viewBox[0]-(dx-this.lastd.x),viewBox[1]-(dy-this.lastd.y),500,500);
+               this.lastd.x = dx;
+               this.lastd.y = dy;
+           },
+           function() {
+               this.lastd = {x: 0,y: 0};
+           }
+       );
     }
 
     selectionRemoved(){
-        movingMap = false;
+        mapRect.undrag();
     }
 }
 
@@ -586,8 +596,9 @@ class AddLineAction extends ButtonAction {
             this.pathCircle.remove();
             this.pathCircle = null;
         }
+        if(this.path == null)
+            return;
         nameField.begin();
-
     }
 
     nameAdded(value){
@@ -873,7 +884,8 @@ UIElements = {
         addSegment: "addSegment",
         deleteSegment: "deleteSegment",
         curveMod: "curveMod",
-        setMapSize: id
+        setMapSize: id,
+        enter : id
     }
     mapHeight : id,
     mapWidth : id,
@@ -883,22 +895,17 @@ function initMapEditor(UIElements){
 
     paper = Raphael(UIElements.area.id,UIElements.area.width,UIElements.area.height);
     paper.setViewBox(0,0,paper.width,paper.height);
-    mapRect = paper.rect(0,0,paper.width,paper.height)
-        .drag(
-            function(dx,dy){
-                if(!movingMap)
-                    return;
-                let viewBox = paper._viewBox;
-                paper.setViewBox(viewBox[0]-(dx-this.lastd.x),viewBox[1]-(dy-this.lastd.y),500,500);
-                this.lastd.x = dx;
-                this.lastd.y = dy;
-            },
-            function() {
-                if(!movingMap)
-                    return;
-                this.lastd = {x: 0,y: 0};
-            }
-        ).attr({fill:"white"});
+    mapRect = paper.rect(0,0,paper.width,paper.height).attr({fill:"white"}).drag(
+        function(dx,dy){
+            let viewBox = paper._viewBox;
+            paper.setViewBox(viewBox[0]-(dx-this.lastd.x),viewBox[1]-(dy-this.lastd.y),500,500);
+            this.lastd.x = dx;
+            this.lastd.y = dy;
+        },
+        function() {
+            this.lastd = {x: 0,y: 0};
+        }
+    );
 
     nameInput = document.getElementById(UIElements.nameInput);
 
@@ -943,6 +950,7 @@ function initMapEditor(UIElements){
         }
     }
 
+
     $(document).keypress(function (e){
         if(e.which === 13){
             if(currentAction != null){
@@ -950,6 +958,7 @@ function initMapEditor(UIElements){
             }
         }
     });
+
 
     $(nameInput).keypress(function (e){
         if(e.which === 13){
@@ -982,6 +991,11 @@ function initMapEditor(UIElements){
     addSegmentButton = document.getElementById(btn.addSegment);
     deleteSegmentButton = document.getElementById(btn.deleteSegment);
     modCurve = document.getElementById(btn.curveMod);
+    enterButton = $("#" + btn.enter);
+    $(enterButton).click(function(){
+        currentAction.enterPressed();
+    });
+
 
     $(addSegmentButton).click(function(){
         currentAction.addSegmentPressed();
