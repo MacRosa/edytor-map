@@ -855,6 +855,7 @@ function loadMap(mapDetails){
     mapDetails.points.forEach(
         function(point){
             let pointShape = paper.circle(point.x,point.y,10).attr({fill:"green"});
+            pointShape.attr(point.style.styleMap);
             let text = paper.text(point.name.x,point.name.y,point.name.value);
             insertPoint(pointShape);
             insertText(text);
@@ -878,7 +879,12 @@ function getData(){
                  py : point.shape.attr("cy"),
                  name : point.text.attr("text"),
                  tx : point.text.attr("x"),
-                 ty : point.text.attr("y")
+                 ty : point.text.attr("y"),
+                 style : {
+                     point : {
+                         stroke : point.shape.attr("stroke")
+                     }
+                 }
              }
          );
      });

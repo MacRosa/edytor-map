@@ -53,6 +53,14 @@ public class JSONToMapConverter {
                     point.setX( s.get("px").asDouble());
                     point.setY( s.get("py").asDouble());
                     point.setName( getText(s));
+                    Style style = point.getStyle();
+                    if(style == null){
+                        style = new Style();
+                        String stroke = s.get("style").get("point").get("stroke").asText();
+                        System.out.println(stroke);
+                        style.set("stroke",stroke);
+                        point.setStyle(style);
+                    }
                     points.add(point);
                 }
         );
