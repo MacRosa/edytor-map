@@ -935,6 +935,7 @@ function initMapEditor(UIElements){
             nameInput.focus();
         }
     });
+
     class DeleteElementAction extends ButtonAction {
         constructor(element){
             super(element);
@@ -993,7 +994,31 @@ function initMapEditor(UIElements){
     modCurve = document.getElementById(btn.curveMod);
     enterButton = $("#" + btn.enter);
     $(enterButton).click(function(){
-        currentAction.enterPressed();
+        if(currentAction != null && currentAction instanceof  EditElementAction){
+            if(currentAction.addingSegments){
+                currentAction.stopAddingElements();
+            }else{
+                if(/\S/.test(nameInput.value)){
+                    if(currentAction != null){
+                        currentAction.nameAdded(nameField.getValue());
+                        nameField.end();
+                    }
+                }else{
+                    alert("Name field is empty.");
+                }
+            }
+        }else if(nameField.active){
+            if(/\S/.test(nameInput.value)){
+                if(currentAction != null){
+                    currentAction.nameAdded(nameField.getValue());
+                    nameField.end();
+                }
+            }else{
+                alert("Name field is empty.");
+            }
+        }else{
+            currentAction.enterPressed();
+        }
     });
 
 
@@ -1047,6 +1072,8 @@ function initMapEditor(UIElements){
         currentAction.screenClicked(posX,posY);
     }
 
+    $("#"+UIElements.area.id).bind('click',clickArea);
+
     let mapWidth = $("#" + UIElements.mapWidth);
     let mapHeight = $("#" + UIElements.mapHeight);
     $("#" + UIElements.buttons.setMapSize).click(function(){
@@ -1054,7 +1081,6 @@ function initMapEditor(UIElements){
     });
 
 
-    $("#"+UIElements.area.id).bind('click',clickArea);
 
 
     $("#"+UIElements.saveMap).submit(function () {
