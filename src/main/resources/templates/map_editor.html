@@ -8,6 +8,7 @@
 	<head>
         <meta charset="UTF-8">
         <div th:replace="fragments/styles :: styles"></div>
+        <link th:href="@{/css/spectrum.css}" rel="stylesheet"/>
         <title th:unless="${notfound || noaccess || cantedit}" >
             <span th:text="${model.name}" th:remove="tag"></span> - map editor
         </title>
@@ -42,6 +43,12 @@
                 <input type="number" id="mapHeight"/>
                 <button id="setMapSize">Set</button>
             </div>
+            <div>
+                <div id="strokeColor">
+                    <label for="strokeColorChooser">Stroke color:</label>
+                    <input id="strokeColorChooser">
+                </div>
+            </div>
             <br />
             <br />
             <form th:action="@{/map/edit/{map_id}(map_id=${model.id})}" method="POST" id="saveMap">
@@ -64,6 +71,7 @@
     <div th:replace="fragments/scripts :: scripts"></div>
     <script th:src="@{/js/raphael.min.js}"></script>
     <script th:src="@{/js/mapeditor.js}"></script>
+    <script th:src="@{/js/spectrum.js}"></script>
     <script th:inline="javascript">
         window.onload = function(){
             /*<![CDATA[*/
@@ -103,7 +111,13 @@
                                },
                                mapWidth : "mapWidth",
                                mapHeight : "mapHeight",
-                               saveMap : "saveMap"
+                               saveMap : "saveMap",
+                               elementStyle : {
+                                   strokeColor : {
+                                       panel : "strokeColor",
+                                       chooser : "strokeColorChooser"
+                                   }
+                               }
                            }
                        );
                        if(data.mapDetails != null){

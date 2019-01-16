@@ -48,6 +48,50 @@ function insertText(text){
     text.insertBefore(lastText);
 }
 
+class ColorChooser {
+    constructor(panel,chooser){
+        this.panel = panel;
+        this.chooser = chooser;
+        this.changeOnColorContext = null;
+        this.colorChangedFunction = function(context) {};
+        this.hidePanel();
+        let tThis = this;
+        $("#" + this.chooser).spectrum({
+            showPalette : true,
+            color: "#000000",
+            change : function () {
+                tThis.colorChange();
+            }
+        });
+    }
+
+    colorChange(){
+        this.colorChangedFunction(this.changeOnColorContext);
+    }
+
+    setOnColorChangeFunction(context,func){
+        this.changeOnColorContext = context;
+        this.colorChangedFunction = func;
+    }
+
+    showPanel(){
+        $("#"+this.panel).show();
+    }
+
+    hidePanel(){
+        $("#"+this.panel).hide();
+    }
+
+    getColorRGBValue() {
+        return $("#"+this.chooser).spectrum("get").toHexString();
+    }
+
+    setColor(colorString){
+        $("#"+this.chooser).spectrum("set",colorString);
+    }
+}
+
+let strokeColorChooser = null;
 
 
 let paper = null;
@@ -134,12 +178,19 @@ class PointElement extends Element{
     elementSelected(){
         this.shapeSelectionBox = getRectFromElement(this.shape);
         this.textSelectionBox = getRectFromElement(this.text);
+        strokeColorChooser.showPanel();
+        strokeColorChooser.setColor(this.shape.attrs.stroke);
+        strokeColorChooser.setOnColorChangeFunction(this,function(context){
+            context.shape.attr({stroke: this.getColorRGBValue()});
+        });
     }
 
     selectionRemoved() {
         super.selectionRemoved();
         this.shapeSelectionBox.remove();
         this.textSelectionBox.remove();
+        strokeColorChooser.hidePanel();
+
     }
 
     moveStart(){
@@ -169,6 +220,7 @@ class PointElement extends Element{
 
         this.shapeSelectionBox.attr({x:this.startCoords.sbx+dx,y:this.startCoords.sby+dy});
         this.textSelectionBox.attr({x:this.startCoords.tbx+dx,y:this.startCoords.tby+dy});
+
     }
 
     nameChanged(newName) {
@@ -889,6 +941,13 @@ UIElements = {
     }
     mapHeight : id,
     mapWidth : id,
+    elementStyle : {
+        strokeColor : {
+            panel : "strokeColor",
+            chooser : "strokeColorChooser"
+        }
+    }
+
 }
 */
 function initMapEditor(UIElements){
@@ -1037,6 +1096,11 @@ function initMapEditor(UIElements){
             currentAction.removeSegment();
         }
     });
+
+    let styleElement = UIElements.elementStyle;
+
+    strokeColorChooser = new ColorChooser(styleElement.strokeColor.panel,
+                                            styleElement.strokeColor.chooser);
 
 
     actionArray.forEach(function (action) {
