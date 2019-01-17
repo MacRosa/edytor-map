@@ -592,10 +592,16 @@ class AreaElement extends LineElement{
 
     selectPath(){
         super.selectPath();
+        fillColorChooser.showPanel();
+        fillColorChooser.setColor(this.shape.attrs.fill);
+        fillColorChooser.setOnColorChangeFunction(this,function(context){
+            context.shape.attr({fill: this.getColorRGBValue()});
+        });
         this.pointSet.pop().remove();
     }
 
     selectionRemoved() {
+        fillColorChooser.hidePanel();
         super.selectionRemoved();
     }
 
@@ -1002,7 +1008,8 @@ function getData(){
                      area : {
                          'stroke-width' : area.shape.attrs.hasOwnProperty('stroke-width')
                              ? area.shape.attrs['stroke-width'] :  1,
-                         stroke : area.shape.attr("stroke")
+                         stroke : area.shape.attr("stroke"),
+                         fill : area.shape.attr("fill")
                      }
                  }
              }

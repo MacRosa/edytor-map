@@ -63,6 +63,7 @@ public class JSONToMapConverter {
         JsonNode areaNode = node.get("area");
         style.set("stroke-width",areaNode.get("stroke-width").asText());
         style.set("stroke",areaNode.get("stroke").asText());
+        style.set("fill",areaNode.get("fill").asText());
         return style;
     }
 
