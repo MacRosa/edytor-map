@@ -17,6 +17,7 @@ public class JSONToMapConverter {
     private Style getTextStyle(JsonNode node){
         Style style = new Style();
         style.set("font-size",node.get("font-size").asText());
+        style.set("fill",node.get("fill").asText());
         return style;
     }
 

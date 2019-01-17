@@ -84,6 +84,8 @@ public class MapToSVGConverter {
         textElement.setAttributeNS(null,"y",text.getY().toString());
         if(text.getStyle() != null){
             textElement.setAttributeNS(null,"font-size",text.getStyle().get("font-size"));
+            textElement.setAttributeNS(null,"fill",text.getStyle().get("fill"));
+
         }else{
             textElement.setAttributeNS(null,"font-size","10");
         }

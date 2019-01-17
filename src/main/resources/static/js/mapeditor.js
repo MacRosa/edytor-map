@@ -138,6 +138,7 @@ let pointSizeChooser = null;
 let strokeWidthChooser = null;
 
 let textSizeChooser = null;
+let textColorChooser = null;
 
 
 let paper = null;
@@ -169,12 +170,20 @@ class Element{
             context.text.attr({'font-size' : this.getValue()});
         });
 
+        textColorChooser.showPanel();
+        textColorChooser.setColor(this.text.attrs.fill);
+        textColorChooser.setOnColorChangeFunction(this,function(context){
+            context.text.attr({fill: this.getColorRGBValue()});
+        });
+
     }
     selectionRemoved() {
         if(this.editTextPos){
             this.editTextPosSqr.remove();
             this.editTextPos = false;
         }
+        textSizeChooser.hidePanel();
+        textColorChooser.hidePanel();
     }
     moveStart() {}
     onMove(dx,dy) {}
@@ -976,7 +985,8 @@ function loadMap(mapDetails){
 
 function getTextStyle(element){
     return {
-        'font-size' : element.text.attr('font-size')
+        'font-size' : element.text.attr('font-size'),
+        'fill' : element.text.attr('fill')
     }
 }
 
@@ -1265,6 +1275,8 @@ function initMapEditor(UIElements){
                                         styleElement.textSize.chooser,
                                         styleElement.textSize.button);
 
+    textColorChooser = new ColorChooser(styleElement.textColor.panel,
+        styleElement.textColor.chooser);
 
     actionArray.forEach(function (action) {
         $(action.element).click(function() {
