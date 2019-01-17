@@ -57,8 +57,9 @@ public class JSONToMapConverter {
                     if(style == null){
                         style = new Style();
                         String stroke = s.get("style").get("point").get("stroke").asText();
-                        System.out.println(stroke);
+                        String fill = s.get("style").get("point").get("fill").asText();
                         style.set("stroke",stroke);
+                        style.set("fill",fill);
                         point.setStyle(style);
                     }
                     points.add(point);

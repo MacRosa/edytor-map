@@ -92,6 +92,7 @@ class ColorChooser {
 }
 
 let strokeColorChooser = null;
+let fillColorChooser = null;
 
 
 let paper = null;
@@ -183,6 +184,12 @@ class PointElement extends Element{
         strokeColorChooser.setOnColorChangeFunction(this,function(context){
             context.shape.attr({stroke: this.getColorRGBValue()});
         });
+
+        fillColorChooser.showPanel();
+        fillColorChooser.setColor(this.shape.attrs.fill);
+        fillColorChooser.setOnColorChangeFunction(this,function(context){
+            context.shape.attr({fill: this.getColorRGBValue()});
+        });
     }
 
     selectionRemoved() {
@@ -190,6 +197,7 @@ class PointElement extends Element{
         this.shapeSelectionBox.remove();
         this.textSelectionBox.remove();
         strokeColorChooser.hidePanel();
+        fillColorChooser.hidePanel();
 
     }
 
@@ -884,7 +892,8 @@ function getData(){
                  ty : point.text.attr("y"),
                  style : {
                      point : {
-                         stroke : point.shape.attr("stroke")
+                         stroke : point.shape.attr("stroke"),
+                         fill : point.shape.attr("fill")
                      }
                  }
              }
@@ -953,6 +962,9 @@ UIElements = {
         strokeColor : {
             panel : "strokeColor",
             chooser : "strokeColorChooser"
+        },fillColor : {
+             panel : "fillColor",
+             chooser : "fillColorChooser"
         }
     }
 
@@ -1109,6 +1121,9 @@ function initMapEditor(UIElements){
 
     strokeColorChooser = new ColorChooser(styleElement.strokeColor.panel,
                                             styleElement.strokeColor.chooser);
+
+    fillColorChooser = new ColorChooser(styleElement.fillColor.panel,
+                                            styleElement.fillColor.chooser);
 
 
     actionArray.forEach(function (action) {

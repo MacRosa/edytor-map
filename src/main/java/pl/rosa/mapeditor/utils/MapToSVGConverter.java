@@ -56,10 +56,12 @@ public class MapToSVGConverter {
         circleElement.setAttributeNS(null,"cy",point.getY().toString());
         if(point.getStyle() != null){
             circleElement.setAttributeNS(null,"stroke",point.getStyle().get("stroke"));
+            circleElement.setAttributeNS(null,"fill",point.getStyle().get("fill"));
+
         }else{
             circleElement.setAttributeNS(null,"stroke","black");
+            circleElement.setAttributeNS(null,"fill","green");
         }
-        circleElement.setAttributeNS(null,"fill","green");
         circleElement.setAttributeNS(null,"r","10");
         return circleElement;
     }
