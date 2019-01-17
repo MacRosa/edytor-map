@@ -91,8 +91,49 @@ class ColorChooser {
     }
 }
 
+class SizeChooser{
+    constructor(panel,chooser,button){
+        this.panel = panel;
+        this.chooser = chooser;
+        this.button = button;
+        this.sizeChangeContext = null;
+        this.sizeChangedFunction = function(context) {};
+        this.hidePanel();
+        $("#"+this.button).click(this,function(event){
+            event.data.sizeChange();
+        });
+    }
+
+    setOnSizeChangeFunction(context,func){
+        this.sizeChangeContext = context;
+        this.sizeChangedFunction = func;
+    }
+
+    sizeChange(){
+        this.sizeChangedFunction(this.sizeChangeContext);
+    }
+
+    setValue(value){
+        $("#"+this.chooser).val(value);
+    }
+
+    getValue(){
+        return $("#"+this.chooser).val();
+    }
+
+    showPanel(){
+        $("#"+this.panel).show();
+    }
+
+    hidePanel(){
+        $("#"+this.panel).hide();
+    }
+}
+
+
 let strokeColorChooser = null;
 let fillColorChooser = null;
+let pointSizeChooser = null;
 
 
 let paper = null;
@@ -189,6 +230,12 @@ class PointElement extends Element{
         fillColorChooser.setColor(this.shape.attrs.fill);
         fillColorChooser.setOnColorChangeFunction(this,function(context){
             context.shape.attr({fill: this.getColorRGBValue()});
+        });
+
+        pointSizeChooser.showPanel();
+        pointSizeChooser.setValue(this.shape.attrs.r);
+        pointSizeChooser.setOnSizeChangeFunction(this,function(context){
+            context.shape.attr({r: this.getValue()});
         });
     }
 
@@ -1124,6 +1171,10 @@ function initMapEditor(UIElements){
 
     fillColorChooser = new ColorChooser(styleElement.fillColor.panel,
                                             styleElement.fillColor.chooser);
+
+    pointSizeChooser = new SizeChooser(styleElement.pointSize.panel,
+                                            styleElement.pointSize.chooser,
+                                            styleElement.pointSize.button);
 
 
     actionArray.forEach(function (action) {

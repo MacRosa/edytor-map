@@ -52,6 +52,11 @@
                     <label for="fillColorChooser">Fill color:</label>
                     <input id="fillColorChooser">
                 </div>
+                <div id="pointSize">
+                    <label for="pointSizeChooser">Point size:</label>
+                    <input type="number" id="pointSizeChooser"/>
+                    <button id="pointSizeButton">Set</button>
+                </div>
             </div>
             <br />
             <br />
@@ -124,6 +129,11 @@
                                    fillColor : {
                                        panel : "fillColor",
                                        chooser : "fillColorChooser"
+                                   },
+                                   pointSize : {
+                                       panel : "pointSize",
+                                       chooser : "pointSizeChooser",
+                                       button : "pointSizeButton"
                                    }
                                }
                            }
