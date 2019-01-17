@@ -50,6 +50,13 @@ public class JSONToMapConverter {
         return style;
     }
 
+    private Style getLineStyle(JsonNode node){
+        Style style = new Style();
+        JsonNode lineNode = node.get("line");
+        style.set("stroke-width",lineNode.get("stroke-width").asText());
+        return style;
+    }
+
     public MapDetails getMapFromJson(JsonNode node){
         MapDetails mapDetails = new MapDetails();
         mapDetails.setWidth(node.get("width").asDouble());
@@ -76,6 +83,7 @@ public class JSONToMapConverter {
                     Line line = new Line();
                     line.setName(getText(s));
                     line.setPath(getPath(s));
+                    line.setStyle(getLineStyle(s.get("style")));
                     lines.add(line);
                 }
         );

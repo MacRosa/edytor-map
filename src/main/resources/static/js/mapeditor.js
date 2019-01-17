@@ -135,6 +135,8 @@ let strokeColorChooser = null;
 let fillColorChooser = null;
 let pointSizeChooser = null;
 
+let strokeWidthChooser = null;
+
 
 let paper = null;
 
@@ -377,6 +379,17 @@ class LineElement extends Element{
         this.textSelectionBox = getRectFromElement(this.text);
         this.selectPath();
         addSegmentButton.disabled = false;
+
+        strokeWidthChooser.showPanel();
+        if(this.shape.attrs.hasOwnProperty('stroke-width')){
+            strokeWidthChooser.setValue(this.shape.attrs['stroke-width']);
+        }else{
+            strokeWidthChooser.setValue(1);
+        }
+        strokeWidthChooser.setOnSizeChangeFunction(this,function(context){
+            context.shape.attr({'stroke-width': this.getValue()});
+        });
+
     }
 
     selectionRemoved() {
@@ -384,6 +397,7 @@ class LineElement extends Element{
         this.textSelectionBox.remove();
         this.unselectSquare();
         this.removePathSelection();
+        strokeWidthChooser.hidePanel();
         addSegmentButton.disabled = true;
     }
 
@@ -900,6 +914,9 @@ function loadMap(mapDetails){
                 pathArray.push(segmentArray.concat(ps.params));
             });
             let lineShape = paper.path(pathArray);
+            if(line.style != null){
+                lineShape.attr(line.style.styleMap);
+            }
             let text = paper.text(line.name.x,line.name.y,line.name.value);
             insertLine(lineShape);
             insertText(text);
@@ -953,7 +970,13 @@ function getData(){
                  path : line.shape.attr("path"),
                  name : line.text.attr("text"),
                  tx : line.text.attr("x"),
-                 ty : line.text.attr("y")
+                 ty : line.text.attr("y"),
+                 style : {
+                     line : {
+                         'stroke-width' : line.shape.attrs.hasOwnProperty('stroke-width')
+                                ? line.shape.attrs['stroke-width'] :  1
+                     }
+                 }
              }
          );
      });
@@ -1176,6 +1199,10 @@ function initMapEditor(UIElements){
     pointSizeChooser = new SizeChooser(styleElement.pointSize.panel,
                                             styleElement.pointSize.chooser,
                                             styleElement.pointSize.button);
+
+    strokeWidthChooser = new SizeChooser(styleElement.strokeWidth.panel,
+                                            styleElement.strokeWidth.chooser,
+                                            styleElement.strokeWidth.button);
 
 
     actionArray.forEach(function (action) {
