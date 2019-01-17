@@ -54,6 +54,7 @@ public class JSONToMapConverter {
         Style style = new Style();
         JsonNode lineNode = node.get("line");
         style.set("stroke-width",lineNode.get("stroke-width").asText());
+        style.set("stroke",lineNode.get("stroke").asText());
         return style;
     }
 

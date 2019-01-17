@@ -46,8 +46,10 @@ public class MapToSVGConverter {
         Element lineElement = document.createElementNS(svgNS,"path");
         if(line.getStyle() != null){
             lineElement.setAttributeNS(null,"stroke-width",line.getStyle().get("stroke-width"));
+            lineElement.setAttributeNS(null,"stroke",line.getStyle().get("stroke"));
+        }else{
+            lineElement.setAttributeNS(null,"stroke","black");
         }
-        lineElement.setAttributeNS(null,"stroke","black");
         lineElement.setAttributeNS(null,"fill-opacity","0.0");
         lineElement.setAttributeNS(null,"d",pathToString(line.getPath()));
         return lineElement;

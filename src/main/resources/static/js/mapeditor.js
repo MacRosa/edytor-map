@@ -390,6 +390,12 @@ class LineElement extends Element{
             context.shape.attr({'stroke-width': this.getValue()});
         });
 
+        strokeColorChooser.showPanel();
+        strokeColorChooser.setColor(this.shape.attrs.stroke);
+        strokeColorChooser.setOnColorChangeFunction(this,function(context){
+            context.shape.attr({stroke: this.getColorRGBValue()});
+        });
+
     }
 
     selectionRemoved() {
@@ -398,6 +404,7 @@ class LineElement extends Element{
         this.unselectSquare();
         this.removePathSelection();
         strokeWidthChooser.hidePanel();
+        strokeColorChooser.hidePanel();
         addSegmentButton.disabled = true;
     }
 
@@ -974,7 +981,8 @@ function getData(){
                  style : {
                      line : {
                          'stroke-width' : line.shape.attrs.hasOwnProperty('stroke-width')
-                                ? line.shape.attrs['stroke-width'] :  1
+                                ? line.shape.attrs['stroke-width'] :  1,
+                         stroke : line.shape.attr("stroke")
                      }
                  }
              }
