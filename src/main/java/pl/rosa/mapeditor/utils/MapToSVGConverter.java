@@ -82,8 +82,12 @@ public class MapToSVGConverter {
         Element textElement = document.createElementNS(svgNS,"text");
         textElement.setAttributeNS(null,"x",text.getX().toString());
         textElement.setAttributeNS(null,"y",text.getY().toString());
+        if(text.getStyle() != null){
+            textElement.setAttributeNS(null,"font-size",text.getStyle().get("font-size"));
+        }else{
+            textElement.setAttributeNS(null,"font-size","10");
+        }
         textElement.setAttributeNS(null,"font-family","Arial");
-        textElement.setAttributeNS(null,"font-size","10");
         textElement.setAttributeNS(null,"style","text-anchor: middle");
 
 

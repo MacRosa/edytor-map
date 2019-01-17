@@ -14,11 +14,18 @@ import java.util.List;
 @Component
 public class JSONToMapConverter {
 
+    private Style getTextStyle(JsonNode node){
+        Style style = new Style();
+        style.set("font-size",node.get("font-size").asText());
+        return style;
+    }
+
     private Text getText(JsonNode node){
         Text text = new Text();
         text.setX(node.get("tx").asDouble());
         text.setY(node.get("ty").asDouble());
         text.setValue(node.get("name").asText());
+        text.setStyle(getTextStyle(node.get("style").get("text")));
         return text;
     }
 

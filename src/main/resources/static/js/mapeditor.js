@@ -137,6 +137,8 @@ let pointSizeChooser = null;
 
 let strokeWidthChooser = null;
 
+let textSizeChooser = null;
+
 
 let paper = null;
 
@@ -160,7 +162,14 @@ class Element{
         this.editTextPos = false;
     }
 
-    elementSelected() {}
+    elementSelected() {
+        textSizeChooser.showPanel();
+        textSizeChooser.setValue(this.text.attrs['font-size']);
+        textSizeChooser.setOnSizeChangeFunction(this,function(context){
+            context.text.attr({'font-size' : this.getValue()});
+        });
+
+    }
     selectionRemoved() {
         if(this.editTextPos){
             this.editTextPosSqr.remove();
@@ -220,6 +229,7 @@ class PointElement extends Element{
     }
 
     elementSelected(){
+        super.elementSelected();
         this.shapeSelectionBox = getRectFromElement(this.shape);
         this.textSelectionBox = getRectFromElement(this.text);
         strokeColorChooser.showPanel();
@@ -376,6 +386,7 @@ class LineElement extends Element{
     }
 
     elementSelected() {
+        super.elementSelected();
         this.textSelectionBox = getRectFromElement(this.text);
         this.selectPath();
         addSegmentButton.disabled = false;
@@ -914,6 +925,9 @@ function loadMap(mapDetails){
                 areaShape.attr(line.style.styleMap);
             }
             let text = paper.text(line.name.x,line.name.y,line.name.value);
+            if(line.name.style != null){
+                text.attr(line.name.style.styleMap);
+            }
             insertArea(areaShape);
             insertText(text);
             areas.push(addListeners(new AreaElement(areaShape,text)));
@@ -934,6 +948,9 @@ function loadMap(mapDetails){
                 lineShape.attr(line.style.styleMap);
             }
             let text = paper.text(line.name.x,line.name.y,line.name.value);
+            if(line.name.style != null){
+                text.attr(line.name.style.styleMap);
+            }
             insertLine(lineShape);
             insertText(text);
             lines.push(addListeners(new LineElement(lineShape,text)));
@@ -947,11 +964,20 @@ function loadMap(mapDetails){
                 pointShape.attr(point.style.styleMap);
             }
             let text = paper.text(point.name.x,point.name.y,point.name.value);
+            if(point.name.style != null){
+                text.attr(point.name.style.styleMap);
+            }
             insertPoint(pointShape);
             insertText(text);
             points.push(addListeners(new PointElement(pointShape,text)));
         }
     );
+}
+
+function getTextStyle(element){
+    return {
+        'font-size' : element.text.attr('font-size')
+    }
 }
 
 function getData(){
@@ -962,6 +988,9 @@ function getData(){
         lines : [],
         areas : [],
      };
+
+
+
      points.forEach(function (point) {
          mapData.points.push(
              {
@@ -975,7 +1004,8 @@ function getData(){
                          stroke : point.shape.attr("stroke"),
                          fill : point.shape.attr("fill"),
                          r : point.shape.attr("r")
-                     }
+                     },
+                     text : getTextStyle(point)
                  }
              }
          );
@@ -992,7 +1022,8 @@ function getData(){
                          'stroke-width' : line.shape.attrs.hasOwnProperty('stroke-width')
                                 ? line.shape.attrs['stroke-width'] :  1,
                          stroke : line.shape.attr("stroke")
-                     }
+                     },
+                     text : getTextStyle(line)
                  }
              }
          );
@@ -1010,7 +1041,8 @@ function getData(){
                              ? area.shape.attrs['stroke-width'] :  1,
                          stroke : area.shape.attr("stroke"),
                          fill : area.shape.attr("fill")
-                     }
+                     },
+                     text : getTextStyle(area)
                  }
              }
          );
@@ -1228,6 +1260,10 @@ function initMapEditor(UIElements){
     strokeWidthChooser = new SizeChooser(styleElement.strokeWidth.panel,
                                             styleElement.strokeWidth.chooser,
                                             styleElement.strokeWidth.button);
+
+    textSizeChooser = new SizeChooser(styleElement.textSize.panel,
+                                        styleElement.textSize.chooser,
+                                        styleElement.textSize.button);
 
 
     actionArray.forEach(function (action) {
