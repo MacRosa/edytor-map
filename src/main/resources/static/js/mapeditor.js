@@ -245,7 +245,7 @@ class PointElement extends Element{
         this.textSelectionBox.remove();
         strokeColorChooser.hidePanel();
         fillColorChooser.hidePanel();
-
+        pointSizeChooser.hidePanel();
     }
 
     moveStart(){
