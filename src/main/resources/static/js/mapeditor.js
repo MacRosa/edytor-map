@@ -940,7 +940,8 @@ function getData(){
                  style : {
                      point : {
                          stroke : point.shape.attr("stroke"),
-                         fill : point.shape.attr("fill")
+                         fill : point.shape.attr("fill"),
+                         r : point.shape.attr("r")
                      }
                  }
              }

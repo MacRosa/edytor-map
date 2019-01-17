@@ -41,6 +41,15 @@ public class JSONToMapConverter {
         return path;
     }
 
+    private Style getPointStyle(JsonNode node){
+        Style style = new Style();
+        JsonNode pointNode = node.get("point");
+        style.set("stroke",pointNode.get("stroke").asText());
+        style.set("fill",pointNode.get("fill").asText());
+        style.set("r",pointNode.get("r").asText());
+        return style;
+    }
+
     public MapDetails getMapFromJson(JsonNode node){
         MapDetails mapDetails = new MapDetails();
         mapDetails.setWidth(node.get("width").asDouble());
@@ -53,15 +62,7 @@ public class JSONToMapConverter {
                     point.setX( s.get("px").asDouble());
                     point.setY( s.get("py").asDouble());
                     point.setName( getText(s));
-                    Style style = point.getStyle();
-                    if(style == null){
-                        style = new Style();
-                        String stroke = s.get("style").get("point").get("stroke").asText();
-                        String fill = s.get("style").get("point").get("fill").asText();
-                        style.set("stroke",stroke);
-                        style.set("fill",fill);
-                        point.setStyle(style);
-                    }
+                    point.setStyle(getPointStyle(s.get("style")));
                     points.add(point);
                 }
         );

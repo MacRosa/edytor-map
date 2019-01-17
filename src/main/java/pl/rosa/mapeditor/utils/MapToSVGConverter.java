@@ -57,12 +57,12 @@ public class MapToSVGConverter {
         if(point.getStyle() != null){
             circleElement.setAttributeNS(null,"stroke",point.getStyle().get("stroke"));
             circleElement.setAttributeNS(null,"fill",point.getStyle().get("fill"));
-
+            circleElement.setAttributeNS(null,"r",point.getStyle().get("r"));
         }else{
             circleElement.setAttributeNS(null,"stroke","black");
             circleElement.setAttributeNS(null,"fill","green");
+            circleElement.setAttributeNS(null,"r","10");
         }
-        circleElement.setAttributeNS(null,"r","10");
         return circleElement;
     }
 
