@@ -70,6 +70,7 @@ public class MapToSVGConverter {
         textElement.setAttributeNS(null,"y",text.getY().toString());
         textElement.setAttributeNS(null,"font-family","Arial");
         textElement.setAttributeNS(null,"font-size","10");
+        textElement.setAttributeNS(null,"style","text-anchor: middle");
 
 
         textElement.setTextContent(text.getValue());
