@@ -58,6 +58,14 @@ public class JSONToMapConverter {
         return style;
     }
 
+    private Style getAreaStyle(JsonNode node){
+        Style style = new Style();
+        JsonNode areaNode = node.get("area");
+        style.set("stroke-width",areaNode.get("stroke-width").asText());
+        style.set("stroke",areaNode.get("stroke").asText());
+        return style;
+    }
+
     public MapDetails getMapFromJson(JsonNode node){
         MapDetails mapDetails = new MapDetails();
         mapDetails.setWidth(node.get("width").asDouble());
@@ -98,6 +106,7 @@ public class JSONToMapConverter {
                     Area area = new Area();
                     area.setName(getText(s));
                     area.setPath(getPath(s));
+                    area.setStyle(getAreaStyle(s.get("style")));
                     areas.add(area);
                 }
 

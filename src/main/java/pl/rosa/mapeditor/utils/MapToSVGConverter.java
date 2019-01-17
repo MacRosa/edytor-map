@@ -36,8 +36,13 @@ public class MapToSVGConverter {
 
     private Element getArea(Document document, Area area){
         Element areaElement = document.createElementNS(svgNS,"path");
+        if(area.getStyle() != null){
+            areaElement.setAttributeNS(null,"stroke-width",area.getStyle().get("stroke-width"));
+            areaElement.setAttributeNS(null,"stroke",area.getStyle().get("stroke"));
+        }else{
+            areaElement.setAttributeNS(null,"stroke","black");
+        }
         areaElement.setAttributeNS(null,"fill","cyan");
-        areaElement.setAttributeNS(null,"stroke","black");
         areaElement.setAttributeNS(null,"d",pathToString(area.getPath()));
         return areaElement;
     }

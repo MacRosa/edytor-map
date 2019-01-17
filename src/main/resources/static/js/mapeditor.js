@@ -904,6 +904,9 @@ function loadMap(mapDetails){
          //       pathArray.push([ps.instruction,ps.x,ps.y]);
             });
             let areaShape = paper.path(pathArray).attr({fill:"cyan"});
+            if(line.style != null){
+                areaShape.attr(line.style.styleMap);
+            }
             let text = paper.text(line.name.x,line.name.y,line.name.value);
             insertArea(areaShape);
             insertText(text);
@@ -994,7 +997,14 @@ function getData(){
                  path : area.shape.attr("path"),
                  name : area.text.attr("text"),
                  tx : area.text.attr("x"),
-                 ty : area.text.attr("y")
+                 ty : area.text.attr("y"),
+                 style : {
+                     area : {
+                         'stroke-width' : area.shape.attrs.hasOwnProperty('stroke-width')
+                             ? area.shape.attrs['stroke-width'] :  1,
+                         stroke : area.shape.attr("stroke")
+                     }
+                 }
              }
          );
      });
