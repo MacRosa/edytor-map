@@ -54,8 +54,12 @@ public class MapToSVGConverter {
         Element circleElement = document.createElementNS(svgNS,"circle");
         circleElement.setAttributeNS(null,"cx",point.getX().toString());
         circleElement.setAttributeNS(null,"cy",point.getY().toString());
+        if(point.getStyle() != null){
+            circleElement.setAttributeNS(null,"stroke",point.getStyle().get("stroke"));
+        }else{
+            circleElement.setAttributeNS(null,"stroke","black");
+        }
         circleElement.setAttributeNS(null,"fill","green");
-        circleElement.setAttributeNS(null,"stroke","black");
         circleElement.setAttributeNS(null,"r","10");
         return circleElement;
     }
@@ -66,6 +70,7 @@ public class MapToSVGConverter {
         textElement.setAttributeNS(null,"y",text.getY().toString());
         textElement.setAttributeNS(null,"font-family","Arial");
         textElement.setAttributeNS(null,"font-size","10");
+
 
         textElement.setTextContent(text.getValue());
 
