@@ -17,7 +17,7 @@
 	<body>
         <div th:replace="fragments/navbar :: navbar" ></div>
         <div th:unless="${notfound || noaccess || cantedit}" class="container mt-5">
-            <div id="actionDescription" ondragstart="return false;" ondrop="return false;"> Empty. </div>
+            <div id="actionDescription" ondragstart="return false;" ondrop="return false;"></div>
             <div id="drawArea" ondragstart="return false;" ondrop="return false;" style="touch-action: none"></div>
             <div>
                 <button id="moveMap" disabled>Move</button>

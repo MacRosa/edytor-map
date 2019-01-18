@@ -705,8 +705,25 @@ class AddPointAction extends ButtonAction {
         this.circle = null;
     }
 
+    setDescriptorAfterChoosing(){
+        actionDescriptor.html("Point added at x:" + this.circle.attrs.cx + " y: " + this.circle.attrs.cy + ". Enter name.");
+    }
+
+    fieldHover(x, y) {
+        if(nameField.active){
+            this.setDescriptorAfterChoosing();
+        }else {
+            super.fieldHover(x, y);
+        }
+    }
+
+    actionName() {
+        return "Adding point.";
+    }
+
     screenClicked(x, y){
         this.circle = paper.circle(x,y,10).attr({fill:"green"});
+        this.setDescriptorAfterChoosing();
         nameField.begin();
     }
 
@@ -723,7 +740,7 @@ class AddPointAction extends ButtonAction {
         insertText(text);
         points.push(addListeners(new PointElement(this.circle,text)));
         this.circle = null;
-
+        actionDescriptor.html("Point \"" + value + "\" added.");
     }
 
 }
@@ -736,15 +753,47 @@ class AddLineAction extends ButtonAction {
         this.pathCircle = null;
     }
 
+    fieldLastPointDescriptor(x,y){
+        let li = this.pathArray.length - 1;
+        if(x == null || y == null){
+            actionDescriptor.html("Last point of line at: " + this.pathArray[li][1] + ", " + this.pathArray[li][2]
+                                        + ". Press enter to stop.");
+        }else{
+            actionDescriptor.html("Last point of line at: " + this.pathArray[li][1] + ", " + this.pathArray[li][2] +
+                ". Current coordinates X: " + x + " Y:" + y + ". Press enter to stop.");
+        }
+    }
+
+    static fieldEndPath(){
+        actionDescriptor.html("Ended building path. Enter name.");
+    }
+
+
+    fieldHover(x,y){
+        if(this.path == null){
+            super.fieldHover(x,y);
+        }else if(nameField.active){
+            AddLineAction.fieldEndPath();
+        }else {
+            this.fieldLastPointDescriptor(x,y);
+        }
+    }
+
+    actionName() {
+        return "Adding line.";
+    }
+
     screenClicked(x, y){
         if(this.path == null){
             this.pathArray = [ ['M',x,y] ];
             this.path = paper.path(this.pathArray);
             this.pathCircle = paper.circle(x,y,10);
+            this.fieldLastPointDescriptor();
         }else{
             this.pathArray.push(['L',x,y]);
             this.path.attr({path:this.pathArray});
             this.pathCircle.attr({cx:x,cy:y});
+            this.fieldLastPointDescriptor();
         }
     }
 
@@ -767,6 +816,7 @@ class AddLineAction extends ButtonAction {
         }
         if(this.path == null)
             return;
+        AddLineAction.fieldEndPath();
         nameField.begin();
     }
 
@@ -782,6 +832,7 @@ class AddLineAction extends ButtonAction {
         lines.push(addListeners(new LineElement(this.path,text)));
         this.path = null;
         this.pathArray = null;
+        actionDescriptor.html("Element \"" + value + "\" added.");
     }
 
 }
@@ -789,6 +840,10 @@ class AddLineAction extends ButtonAction {
 class AddAreaAction extends AddLineAction {
     constructor(element){
         super(element);
+    }
+
+    actionName() {
+        return "Adding area.";
     }
 
     enterPressed(){
@@ -815,6 +870,22 @@ class EditElementAction extends ButtonAction{
         this.isElementSelected = false;
         this.isElementDragged = false;
         this.addingSegments = false;
+    }
+
+    actionName() {
+        return "Editing element ";
+    }
+
+    descriptorSelectedItem(){
+        actionDescriptor.html("Selected element: " + this.currentSelection.text.attr("text"));
+    }
+
+    fieldHover(x, y) {
+        if(this.currentSelection != null){
+            this.descriptorSelectedItem();
+        }else{
+            super.fieldHover(x, y);
+        }
     }
 
     selectionRemoved(){
@@ -856,6 +927,7 @@ class EditElementAction extends ButtonAction{
 
         nameInput.disabled = false;
         nameInput.value = currentSelection.text.attr("text");
+        this.descriptorSelectedItem();
         this.isElementSelected = true;
     }
 
@@ -868,6 +940,7 @@ class EditElementAction extends ButtonAction{
             // noinspection JSUnresolvedFunction
             this.currentSelection.text.undblclick();
             this.currentSelection = null;
+            actionDescriptor.html("");
             nameInput.disabled = true;
         }
     }
@@ -1183,6 +1256,10 @@ function initMapEditor(UIElements){
             super(element);
         }
 
+        actionName() {
+            return "Deleting element. ";
+        }
+
         actionSelected(){}
 
 
@@ -1326,16 +1403,13 @@ function initMapEditor(UIElements){
     let dragX = 0;
     let dragY = 0;
     area.mousedown(function(event){
-        console.log("mousedown");
         dragging = true;
         dragX = event.pageX - $(this).position().left;
         dragY = event.pageY - $(this).position().top;
         currentAction.screenDragStart();
     }).mouseup(function(){
-        console.log("mouseup");
         dragging = false;
     }).mouseleave(function(){
-        console.log("mouseleave");
         dragging = false;
     });
 
@@ -1357,7 +1431,6 @@ function initMapEditor(UIElements){
     });
 
     area.mousemove(function (event){
-        console.log("mousemove");
         let posX = event.pageX - $(this).position().left;
         let posY = event.pageY - $(this).position().top;
         if(posX > paper.width)
