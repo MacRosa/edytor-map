@@ -661,8 +661,15 @@ class ButtonAction {
         actionDescriptor.html(this.actionName() + " X: " + x + " Y:" + y);
     }
 
+    screenDrag(dx,dy){
+    }
+
+    screenDragStart() {}
+
     enterPressed() {}
-    actionSelected(){}
+    actionSelected(){
+        actionDescriptor.html(this.actionName());
+    }
     selectionRemoved(){}
     nameAdded(value){}
     elementSelected(element) {}
@@ -670,21 +677,21 @@ class ButtonAction {
     addSegmentPressed() {}
 }
 
-let movingMap = true;
-
 class MoveMapAction extends ButtonAction{
-    actionSelected(){
-        mapRect.drag(
-           function(dx,dy){
-               let viewBox = paper._viewBox;
-               paper.setViewBox(viewBox[0]-(dx-this.lastd.x),viewBox[1]-(dy-this.lastd.y),500,500);
-               this.lastd.x = dx;
-               this.lastd.y = dy;
-           },
-           function() {
-               this.lastd = {x: 0,y: 0};
-           }
-       );
+
+    actionName() {
+        return "Map movement.";
+    }
+
+    screenDragStart(){
+        this.lastd = {x: 0,y: 0};
+    }
+
+    screenDrag(dx,dy){
+        let viewBox = paper._viewBox;
+        paper.setViewBox(viewBox[0]-(dx-this.lastd.x),viewBox[1]-(dy-this.lastd.y),500,500);
+        this.lastd.x = dx;
+        this.lastd.y = dy;
     }
 
     selectionRemoved(){
@@ -1140,17 +1147,7 @@ function initMapEditor(UIElements){
 
     paper = Raphael(UIElements.area.id,UIElements.area.width,UIElements.area.height);
     paper.setViewBox(0,0,paper.width,paper.height);
-    mapRect = paper.rect(0,0,paper.width,paper.height).attr({fill:"white"}).drag(
-        function(dx,dy){
-            let viewBox = paper._viewBox;
-            paper.setViewBox(viewBox[0]-(dx-this.lastd.x),viewBox[1]-(dy-this.lastd.y),500,500);
-            this.lastd.x = dx;
-            this.lastd.y = dy;
-        },
-        function() {
-            this.lastd = {x: 0,y: 0};
-        }
-    );
+    mapRect = paper.rect(0,0,paper.width,paper.height).attr({fill:"white"});
 
     nameInput = document.getElementById(UIElements.nameInput);
 
@@ -1325,6 +1322,23 @@ function initMapEditor(UIElements){
 
     let area = $("#"+UIElements.area.id);
 
+    let dragging = false;
+    let dragX = 0;
+    let dragY = 0;
+    area.mousedown(function(event){
+        console.log("mousedown");
+        dragging = true;
+        dragX = event.pageX - $(this).position().left;
+        dragY = event.pageY - $(this).position().top;
+        currentAction.screenDragStart();
+    }).mouseup(function(){
+        console.log("mouseup");
+        dragging = false;
+    }).mouseleave(function(){
+        console.log("mouseleave");
+        dragging = false;
+    });
+
     area.click(function (event) {
         let posX = event.pageX - $(this).position().left;
         let posY = event.pageY - $(this).position().top;
@@ -1343,6 +1357,7 @@ function initMapEditor(UIElements){
     });
 
     area.mousemove(function (event){
+        console.log("mousemove");
         let posX = event.pageX - $(this).position().left;
         let posY = event.pageY - $(this).position().top;
         if(posX > paper.width)
@@ -1350,11 +1365,18 @@ function initMapEditor(UIElements){
         if(currentAction == null){
             return 0;
         }
+
+        if(dragging){
+            currentAction.screenDrag(posX-dragX,posY-dragY);
+        }
+
         posX +=  paper._viewBox[0];
         posY +=  paper._viewBox[1];
 
         currentAction.fieldHover(posX,posY);
     });
+
+
 
     actionDescriptor = $("#" + UIElements.actionDescription);
 
