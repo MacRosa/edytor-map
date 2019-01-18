@@ -221,4 +221,18 @@ public class MapController {
         }
         return "success";
     }
+
+    @GetMapping("/map/author/{id}")
+    public ModelAndView getMapsByAuthor(@PathVariable("id")Long authorId){
+        ModelAndView mav = new ModelAndView("mapbyauthor");
+        mav.addObject("usernotfound",false);
+        try{
+            AppUser author = appUserService.getUserById(authorId);
+            mav.addObject("author",author);
+            mav.addObject("maps",mapService.getPublicMapsByUser(authorId));
+        }catch(UserNotFoundException e){
+            mav.addObject("usernotfound",true);
+        }
+        return mav;
+    }
 }

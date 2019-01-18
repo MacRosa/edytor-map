@@ -73,4 +73,8 @@ public class AppUserService {
     public AppUser getUserByName(String name) throws UserNotFoundException{
         return appUserRepository.findByName(name).orElseThrow(UserNotFoundException::new);
     }
+
+    public AppUser getUserById(Long userId) throws UserNotFoundException {
+        return appUserRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
 }

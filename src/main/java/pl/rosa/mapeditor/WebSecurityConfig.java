@@ -43,7 +43,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/", "/test/**","/register","/after","/js/**","/css/**","/map/show/*","/map/svg/*").permitAll()
+                .antMatchers("/", "/test/**","/register","/after","/js/**","/css/**","/map/show/*","/map/svg/*","/map/author/**").permitAll()
                 .and().formLogin().loginPage("/login").permitAll()
                 .and().logout().permitAll();
         super.configure(http);

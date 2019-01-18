@@ -14,6 +14,7 @@ import pl.rosa.mapeditor.repositories.MapAccessRepository;
 import pl.rosa.mapeditor.repositories.MapRepository;
 import pl.rosa.mapeditor.viewmodels.MapViewModel;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -110,5 +111,9 @@ public class MapService {
             mapAccess.setAccessType(accessType);
         }
         mapAccessRepository.save(mapAccess);
+    }
+
+    public List<Map> getPublicMapsByUser(Long userId){
+        return mapRepository.findByOwnerIdAndVisibility(userId,"public");
     }
 }

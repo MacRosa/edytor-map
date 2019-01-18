@@ -18,7 +18,16 @@
         <div th:replace="fragments/navbar :: navbar" ></div>
         <div th:unless="${notfound || noaccess}" class="container mt-5">
             <h2 th:text="${model.name}"></h2>
-            <p><i>Author: <th:block th:text="${model.owner.name}">author</th:block></i></p>
+            <p>
+                <i>Author:
+                    <a th:href="@{/map/author/{author_id}(author_id=${model.owner.id})}">
+                        <th:block th:text="${model.owner.name}">
+                        author
+                        </th:block>
+                    </a>
+                </i>
+            </p>
+
             <p>Description:</p>
             <p th:text="${model.description}"></p>
 
