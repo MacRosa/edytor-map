@@ -92,7 +92,7 @@ class HierarchyMovement{
             case "line":
                 return !HierarchyMovement.isTab(element.prev,"area");
             case "area":
-                return element.prev != null;
+                return element.prev.type !== "rect";
         }
         return false;
     }
@@ -100,25 +100,16 @@ class HierarchyMovement{
 
     activate(element){
         this.selectedElement = element;
-        if(HierarchyMovement.canMoveUp(element)){
-            this.moveUpBtn.prop("disabled",false);
-        }else{
-            this.moveUpBtn.prop("disabled",true);
-
-        }
-        if(HierarchyMovement.canMoveDown(element)){
-            this.moveDownBtn.prop("disabled",false);
-        }else{
-            this.moveDownBtn.prop("disabled",true);
-
-        }
+        this.moveUpBtn.prop("disabled",!HierarchyMovement.canMoveUp(element.shape));
+        this.moveDownBtn.prop("disabled",!HierarchyMovement.canMoveDown(element.shape));
     }
 
     moveUp() {
         if(this.selectedElement === null)
             return;
-        if(HierarchyMovement.canMoveUp(this.selectedElement)){
-            this.selectedElement.insertAfter(this.selectedElement.next);
+        if(HierarchyMovement.canMoveUp(this.selectedElement.shape)){
+            this.selectedElement.shape.insertAfter(this.selectedElement.shape.next);
+            this.selectedElement.moveUp();
             this.activate(this.selectedElement);
         }
     }
@@ -126,8 +117,9 @@ class HierarchyMovement{
     moveDown(){
         if(this.selectedElement === null)
             return;
-        if(HierarchyMovement.canMoveDown(this.selectedElement)){
-            this.selectedElement.insertBefore(this.selectedElement.prev);
+        if(HierarchyMovement.canMoveDown(this.selectedElement.shape)){
+            this.selectedElement.shape.insertBefore(this.selectedElement.shape.prev);
+            this.selectedElement.moveDown();
             this.activate(this.selectedElement);
         }
     }
@@ -321,6 +313,10 @@ class Element{
             this.textSelectionBox.attr({x:this.textCoords.atbx+dx,y:this.textCoords.atby+dy});
         }
     }
+
+    moveUp() {}
+
+    moveDown() {}
 }
 
 class PointElement extends Element{
@@ -404,6 +400,19 @@ class PointElement extends Element{
         points.splice(points.indexOf(this),1);
     }
 
+    moveUp(){
+        let i = points.indexOf(this);
+        if(i < points.length-1){
+            [points[i],points[i+1]] = [points[i+1],points[i]];
+        }
+    }
+
+    moveDown() {
+        let i = points.indexOf(this);
+        if(i > 0){
+            [points[i],points[i-1]] = [points[i-1],points[i]];
+        }
+    }
 }
 
 function applyDiff(square,x,y){
@@ -593,6 +602,20 @@ class LineElement extends Element{
         lines.splice(lines.indexOf(this),1);
     }
 
+    moveUp(){
+        let i = lines.indexOf(this);
+        if(i < lines.length-1){
+            [lines[i],lines[i+1]] = [lines[i+1],lines[i]];
+        }
+    }
+
+    moveDown() {
+        let i = lines.indexOf(this);
+        if(i > 0){
+            [lines[i],lines[i-1]] = [lines[i-1],lines[i]];
+        }
+    }
+
     startAddingSegments() {
         let point = this.path[this.path.length-1];
         this.circle = paper.circle(point[point.length-2],point[point.length-1],10);
@@ -723,6 +746,20 @@ class AreaElement extends LineElement{
         this.text.remove();
         this.shape.remove();
         areas.splice(areas.indexOf(this),1);
+    }
+
+    moveUp(){
+        let i = areas.indexOf(this);
+        if(i < areas.length-1){
+            [areas[i],areas[i+1]] = [areas[i+1],areas[i]];
+        }
+    }
+
+    moveDown() {
+        let i = areas.indexOf(this);
+        if(i > 0){
+            [areas[i],areas[i-1]] = [areas[i-1],areas[i]];
+        }
     }
 
     startAddingSegments() {
@@ -1023,7 +1060,7 @@ class EditElementAction extends ButtonAction{
         this.descriptorSelectedItem();
         this.isElementSelected = true;
 
-        hierarchyMovement.activate(currentSelection.shape);
+        hierarchyMovement.activate(currentSelection);
     }
 
     removeSelection(){
