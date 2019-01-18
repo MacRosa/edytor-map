@@ -21,7 +21,7 @@ function calculateTextPosition(px,py,alpha,textWidth,textHeight) {
     return {x:px+xOffset,y:py+yOffset};
 }
 
-
+let actionDescriptor = null;
 
 let points = [];
 let lines = [];
@@ -652,7 +652,15 @@ class ButtonAction {
         this.element = document.getElementById(elementId);
     }
 
+    actionName() {
+        return "Undefined";
+    }
+
     screenClicked(x, y){}
+    fieldHover(x, y) {
+        actionDescriptor.html(this.actionName() + " X: " + x + " Y:" + y);
+    }
+
     enterPressed() {}
     actionSelected(){}
     selectionRemoved(){}
@@ -1100,12 +1108,32 @@ UIElements = {
         strokeColor : {
             panel : "strokeColor",
             chooser : "strokeColorChooser"
-        },fillColor : {
-             panel : "fillColor",
-             chooser : "fillColorChooser"
+        },
+        fillColor : {
+            panel : "fillColor",
+            chooser : "fillColorChooser"
+        },
+        pointSize : {
+            panel : "pointSize",
+            chooser : "pointSizeChooser",
+            button : "pointSizeButton"
+        },
+        strokeWidth : {
+            panel : "strokeWidth",
+            chooser : "strokeWidthChooser",
+            button : "strokeWidthButton",
+        },
+        textSize : {
+            panel : "textSize",
+            chooser : "textSizeChooser",
+            button : "textSizeButton"
+        },
+        textColor : {
+            panel : "textColor",
+            chooser : "textColorChooser",
         }
-    }
-
+    },
+    actionDescription : "actionDescription"
 }
 */
 function initMapEditor(UIElements){
@@ -1294,7 +1322,10 @@ function initMapEditor(UIElements){
 
     currentAction = actionArray[0];
 
-    function clickArea(event) {
+
+    let area = $("#"+UIElements.area.id);
+
+    area.click(function (event) {
         let posX = event.pageX - $(this).position().left;
         let posY = event.pageY - $(this).position().top;
 
@@ -1309,9 +1340,24 @@ function initMapEditor(UIElements){
         posX +=  paper._viewBox[0];
         posY +=  paper._viewBox[1];
         currentAction.screenClicked(posX,posY);
-    }
+    });
 
-    $("#"+UIElements.area.id).bind('click',clickArea);
+    area.mousemove(function (event){
+        let posX = event.pageX - $(this).position().left;
+        let posY = event.pageY - $(this).position().top;
+        if(posX > paper.width)
+            return;
+        if(currentAction == null){
+            return 0;
+        }
+        posX +=  paper._viewBox[0];
+        posY +=  paper._viewBox[1];
+
+        currentAction.fieldHover(posX,posY);
+    });
+
+    actionDescriptor = $("#" + UIElements.actionDescription);
+
 
     let mapWidth = $("#" + UIElements.mapWidth);
     let mapHeight = $("#" + UIElements.mapHeight);

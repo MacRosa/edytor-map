@@ -17,7 +17,7 @@
 	<body>
         <div th:replace="fragments/navbar :: navbar" ></div>
         <div th:unless="${notfound || noaccess || cantedit}" class="container mt-5">
-            <div id="actionDescription"> Action description (work in progress).</div>
+            <div id="actionDescription"> Empty. </div>
             <div id="drawArea" style="touch-action: none"></div>
             <div>
                 <button id="moveMap" disabled>Move</button>
@@ -163,7 +163,8 @@
                                        panel : "textColor",
                                        chooser : "textColorChooser",
                                    }
-                               }
+                               },
+                               actionDescription : "actionDescription"
                            }
                        );
                        if(data.mapDetails != null){
