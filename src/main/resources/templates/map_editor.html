@@ -31,6 +31,8 @@
                 <button id="addSegment" disabled>Add segment</button>
                 <button id="deleteSegment" disabled>Delete segment</button>
                 <button id="curveMod" disabled>Add curve</button>
+                <button id="moveUp" disabled>Move up</button>
+                <button id="moveDown" disabled>Move down</button>
             </div>
             <br/>
             <label for="nameInput">Name:</label>
@@ -130,7 +132,9 @@
                                    deleteSegment: "deleteSegment",
                                    curveMod: "curveMod",
                                    setMapSize: "setMapSize",
-                                   enter: "enterBtn"
+                                   enter: "enterBtn",
+                                   moveUp : "moveUp",
+                                   moveDown : "moveDown"
                                },
                                mapWidth : "mapWidth",
                                mapHeight : "mapHeight",
@@ -164,7 +168,7 @@
                                        chooser : "textColorChooser",
                                    }
                                },
-                               actionDescription : "actionDescription"
+                               actionDescription : "actionDescription",
                            }
                        );
                        if(data.mapDetails != null){

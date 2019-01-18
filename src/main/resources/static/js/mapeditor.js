@@ -27,26 +27,119 @@ let points = [];
 let lines = [];
 let areas = [];
 
-let lastArea = null;
-let lastPoint = null;
-let lastLine = null;
-let lastText = null;
+let areaTab = null;
+let pointTab = null;
+let lineTab = null;
+let textTab = null;
 let dragging = false;
 let dragStop = false;
 let mapRect = null;
 
 function insertPoint(point){
-    point.insertBefore(lastPoint);
+    point.data("type","point");
+    point.insertBefore(pointTab);
 }
 function insertLine(line){
-    line.insertBefore(lastLine);
+    line.data("type","line");
+    line.insertBefore(lineTab);
 }
 function insertArea(area){
-    area.insertBefore(lastArea);
+    area.data("type","area");
+    area.insertBefore(areaTab);
 }
 function insertText(text){
-    text.insertBefore(lastText);
+    text.data("type","text");
+    text.insertBefore(textTab);
 }
+
+class HierarchyMovement{
+    constructor(moveUpBtnId,moveDownBtnId){
+        this.selectedElement = null;
+        this.moveUpBtn = $("#" + moveUpBtnId);
+        this.moveDownBtn = $("#" + moveDownBtnId);
+        this.moveUpBtn.click(this,function(event){
+            event.data.moveUp();
+        });
+        this.moveDownBtn.click(this,function(event){
+            event.data.moveDown();
+        });
+    }
+
+
+    static isTab(element,tabType){
+        if(element.data("tab") === null)
+            return false;
+        return element.data("tab") === tabType;
+    }
+
+    static canMoveUp(element){
+        switch(element.data("type")){
+            case "point":
+                return !HierarchyMovement.isTab(element.next,"point");
+            case "line":
+                return !HierarchyMovement.isTab(element.next,"line");
+            case "area":
+                return !HierarchyMovement.isTab(element.next,"area");
+
+        }
+        return false;
+    }
+
+    static canMoveDown(element){
+        switch(element.data("type")){
+            case "point":
+                return !HierarchyMovement.isTab(element.prev,"line");
+            case "line":
+                return !HierarchyMovement.isTab(element.prev,"area");
+            case "area":
+                return element.prev != null;
+        }
+        return false;
+    }
+
+
+    activate(element){
+        this.selectedElement = element;
+        if(HierarchyMovement.canMoveUp(element)){
+            this.moveUpBtn.prop("disabled",false);
+        }else{
+            this.moveUpBtn.prop("disabled",true);
+
+        }
+        if(HierarchyMovement.canMoveDown(element)){
+            this.moveDownBtn.prop("disabled",false);
+        }else{
+            this.moveDownBtn.prop("disabled",true);
+
+        }
+    }
+
+    moveUp() {
+        if(this.selectedElement === null)
+            return;
+        if(HierarchyMovement.canMoveUp(this.selectedElement)){
+            this.selectedElement.insertAfter(this.selectedElement.next);
+            this.activate(this.selectedElement);
+        }
+    }
+
+    moveDown(){
+        if(this.selectedElement === null)
+            return;
+        if(HierarchyMovement.canMoveDown(this.selectedElement)){
+            this.selectedElement.insertBefore(this.selectedElement.prev);
+            this.activate(this.selectedElement);
+        }
+    }
+
+    deactivate(){
+        this.selectedElement = null;
+        this.moveUpBtn.prop("disabled",true);
+        this.moveDownBtn.prop("disabled",true);
+    }
+}
+
+let hierarchyMovement = null;
 
 class ColorChooser {
     constructor(panel,chooser){
@@ -929,9 +1022,12 @@ class EditElementAction extends ButtonAction{
         nameInput.value = currentSelection.text.attr("text");
         this.descriptorSelectedItem();
         this.isElementSelected = true;
+
+        hierarchyMovement.activate(currentSelection.shape);
     }
 
     removeSelection(){
+        hierarchyMovement.deactivate();
         this.stopAddingElements();
         if(this.currentSelection != null){
             this.currentSelection.selectionRemoved();
@@ -1015,7 +1111,6 @@ function loadMap(mapDetails){
                 // noinspection JSUnresolvedVariable
                 let segmentArray = [ps.instruction];
                 pathArray.push(segmentArray.concat(ps.params));
-         //       pathArray.push([ps.instruction,ps.x,ps.y]);
             });
             let areaShape = paper.path(pathArray).attr({fill:"cyan"});
             if(line.style != null){
@@ -1224,10 +1319,11 @@ function initMapEditor(UIElements){
 
     nameInput = document.getElementById(UIElements.nameInput);
 
-    lastArea = paper.circle(0,0,0).hide();
-    lastLine = paper.circle(0,0,0).hide();
-    lastPoint = paper.circle(0,0,0).hide();
-    lastText = paper.circle(0,0,0).hide();
+    areaTab = paper.circle(0,0,0).hide().data("tab","area");
+    lineTab = paper.circle(0,0,0).hide().data("tab","line");
+    pointTab = paper.circle(0,0,0).hide().data("tab","point");
+    textTab = paper.circle(0,0,0).hide().data("tab","text");
+
 
     nameField = {
         input : nameInput,
@@ -1298,6 +1394,8 @@ function initMapEditor(UIElements){
 
     let btn = UIElements.buttons;
 
+
+
     let actionArray = [
         new MoveMapAction(btn.moveMap),
         new AddPointAction(btn.addPoint),
@@ -1311,6 +1409,9 @@ function initMapEditor(UIElements){
     addSegmentButton = document.getElementById(btn.addSegment);
     deleteSegmentButton = document.getElementById(btn.deleteSegment);
     modCurve = document.getElementById(btn.curveMod);
+
+    hierarchyMovement = new HierarchyMovement(btn.moveUp,btn.moveDown);
+
     enterButton = $("#" + btn.enter);
     $(enterButton).click(function(){
         if(currentAction != null && currentAction instanceof  EditElementAction){
