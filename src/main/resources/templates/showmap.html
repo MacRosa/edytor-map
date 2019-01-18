@@ -18,6 +18,7 @@
         <div th:replace="fragments/navbar :: navbar" ></div>
         <div th:unless="${notfound || noaccess}" class="container mt-5">
             <h2 th:text="${model.name}"></h2>
+            <p><i>Author: <th:block th:text="${model.owner.name}">author</th:block></i></p>
             <p>Description:</p>
             <p th:text="${model.description}"></p>
 
