@@ -3,7 +3,6 @@
     <div th:fragment="mapfields (buttontext,action)" class="container mt-sm-5">
         <!--/*@thymesVar id="model" type="pl.rosa.mapeditor.viewmodels.MapViewModel"*/-->
         <form th:action="${action}" method="post" th:object="${model}" class="form-horizontal" >
-        <!--<form th:action="@{/map/add}" method="post" th:object="${model}" class="form-horizontal" >-->
             <div class="alert alert-danger" th:if="${#fields.hasErrors()}">
                 <strong>There were errors in the form!</strong>
                 <ul>

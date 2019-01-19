@@ -108,9 +108,12 @@ public class MapController {
 
 
     @GetMapping("/map/show/{id}")
-    public ModelAndView getMap(@PathVariable("id") Long id) {
+    public ModelAndView getMap(@PathVariable("id") Long id,@ModelAttribute("editmap") String mapEdited) {
         ModelAndView modelAndView = new ModelAndView("showmap");
         addMapModelAndValidate(modelAndView, id);
+        if(mapEdited.equals("mapedited")){
+            modelAndView.addObject("mapedited",true);
+        }
         return modelAndView;
     }
 
@@ -232,6 +235,52 @@ public class MapController {
             mav.addObject("maps",mapService.getPublicMapsByUser(authorId));
         }catch(UserNotFoundException e){
             mav.addObject("usernotfound",true);
+        }
+        return mav;
+    }
+
+    private ModelAndView getModelToEdit(Long mapId){
+        ModelAndView mav = new ModelAndView("editmapinfo");
+        mav.addObject("error",false);
+        try {
+            Map map = mapService.getMapToEditInfo(mapId);
+            mav.addObject("map",map);
+            mav.addObject("model",mapService.getModelFromMap(map));
+        } catch (MapNotFoundException e) {
+            mav.addObject("error",true);
+            mav.addObject("errorMsg","Map not found.");
+        } catch (NoAccessToMapException e) {
+            mav.addObject("error",true);
+            mav.addObject("errorMsg","You have no access to map.");
+        }
+        return mav;
+    }
+
+    @GetMapping("/map/editinfo/{id}")
+    public ModelAndView getMapToEditInfo(@PathVariable("id")Long mapId){
+        return getModelToEdit(mapId);
+    }
+
+    @PostMapping("/map/editinfo/{id}")
+    public ModelAndView editMapInfo(@PathVariable("id")Long mapId,@Valid @ModelAttribute("model") MapViewModel model, final BindingResult result,
+                                    final RedirectAttributes redirectAttributes){
+
+        if(result.hasErrors()){
+            ModelAndView modelAndView = getModelToEdit(mapId);
+            modelAndView.addObject("model",model);
+            return modelAndView;
+        }
+        ModelAndView mav = new ModelAndView("editmapinfo");
+        try {
+            mapService.editMapInfo(mapId,model);
+            redirectAttributes.addFlashAttribute("editmap","mapedited");
+            mav.setViewName("redirect:/map/show/" + mapId);
+        } catch (MapNotFoundException e) {
+            mav.addObject("error",true);
+            mav.addObject("errorMsg","Map not found.");
+        } catch (NoAccessToMapException e) {
+            mav.addObject("error",true);
+            mav.addObject("errorMsg","You have no access to map.");
         }
         return mav;
     }

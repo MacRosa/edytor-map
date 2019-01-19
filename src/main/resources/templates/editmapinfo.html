@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <!--/*@thymesVar id="error" type="boolean"*/-->
+    <!--/*@thymesVar id="model" type="pl.rosa.mapeditor.viewmodels.MapViewModel"*/-->
+    <!--/*@thymesVar id="map" type="pl.rosa.mapeditor.models.Map"*/-->
+    <!--/*@thymesVar id="errorMsg" type="String"*/-->
+    <head>
+        <meta charset="UTF-8">
+
+        <title>
+            <th:block th:if="${error}">
+                Error
+            </th:block>
+            <th:block th:unless="${error}">
+                Edit map
+                <th:block th:text="${model.name}">map </th:block>
+            </th:block>
+        </title>
+        <th:block th:replace="fragments/styles :: styles">Styles</th:block>
+
+    </head>
+    <body>
+        <div th:replace="fragments/navbar :: navbar" ></div>
+        <div class="container mt-5" th:if="${error}">
+            <h2>Error</h2>
+            <th:block th:text="${errorMsg}">Error message.</th:block>
+        </div>
+        <div class="container mt-5" th:unless="${error}">
+            <h2>Edit map</h2>
+            <div th:replace="fragments/mapfields :: mapfields('Edit map','/map/editinfo/' + ${map.id})"> </div>
+        </div>
+    </body>
+    <div th:replace="fragments/scripts :: scripts"></div>
+</html>

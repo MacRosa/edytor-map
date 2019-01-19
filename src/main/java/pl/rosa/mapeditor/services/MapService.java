@@ -123,4 +123,20 @@ public class MapService {
             throw new NoAccessToMapException();
         return map;
     }
+
+    public MapViewModel getModelFromMap(Map map){
+        MapViewModel mapViewModel = new MapViewModel();
+        mapViewModel.setName(map.getName());
+        mapViewModel.setDescription(map.getDescription());
+        mapViewModel.setVisibility(map.getVisibility());
+        return mapViewModel;
+    }
+
+    public void editMapInfo(Long mapId,MapViewModel mapViewModel) throws MapNotFoundException, NoAccessToMapException {
+        Map map = getMapToEditInfo(mapId);
+        map.setName(mapViewModel.getName());
+        map.setDescription(mapViewModel.getDescription());
+        map.setVisibility(mapViewModel.getVisibility());
+        mapRepository.save(map);
+    }
 }
