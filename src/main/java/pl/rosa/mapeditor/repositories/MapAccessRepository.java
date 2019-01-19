@@ -13,4 +13,6 @@ import java.util.Optional;
 public interface MapAccessRepository extends JpaRepository<MapAccess, Long> {
 
     Optional<MapAccess> findByMapIdAndAppUserId(Long mapId,Long appUserId);
+
+    void deleteByMapId(Long mapId);
 }

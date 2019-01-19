@@ -2,6 +2,7 @@ package pl.rosa.mapeditor.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.rosa.mapeditor.exceptions.AppUserNotLoggedInException;
 import pl.rosa.mapeditor.exceptions.MapNotFoundException;
 import pl.rosa.mapeditor.exceptions.NoAccessToMapException;
@@ -11,6 +12,7 @@ import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.models.Map;
 import pl.rosa.mapeditor.models.MapAccess;
 import pl.rosa.mapeditor.repositories.MapAccessRepository;
+import pl.rosa.mapeditor.repositories.MapDetailsRepository;
 import pl.rosa.mapeditor.repositories.MapRepository;
 import pl.rosa.mapeditor.viewmodels.MapViewModel;
 
@@ -28,13 +30,15 @@ public class MapService {
     private AppUserService userService;
     private LoggedUser loggedUser;
     private MapAccessRepository mapAccessRepository;
+    private MapDetailsRepository mapDetailsRepository;
 
     @Autowired
-    public MapService(MapRepository mapRepository, AppUserService userService, LoggedUser loggedUser, MapAccessRepository mapAccessRepository) {
+    public MapService(MapRepository mapRepository, AppUserService userService, LoggedUser loggedUser, MapAccessRepository mapAccessRepository, MapDetailsRepository mapDetailsRepository) {
         this.mapRepository = mapRepository;
         this.userService = userService;
         this.loggedUser = loggedUser;
         this.mapAccessRepository = mapAccessRepository;
+        this.mapDetailsRepository = mapDetailsRepository;
     }
 
     public void addMap(MapViewModel mapViewModel) throws AppUserNotLoggedInException {
@@ -138,5 +142,16 @@ public class MapService {
         map.setDescription(mapViewModel.getDescription());
         map.setVisibility(mapViewModel.getVisibility());
         mapRepository.save(map);
+    }
+
+
+    @Transactional
+    public void deleteMap(Long mapId) throws MapNotFoundException, NoAccessToMapException {
+        Map map = getMapToEditInfo(mapId);
+        mapAccessRepository.deleteByMapId(mapId);
+        if(map.getDocumentId() != null){
+            mapDetailsRepository.deleteById(map.getDocumentId());
+        }
+        mapRepository.delete(map);
     }
 }

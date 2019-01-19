@@ -55,9 +55,9 @@ public class MapController {
 
 
     @GetMapping("/map/list")
-    public ModelAndView listMaps(@ModelAttribute("addmap") String addmap) {
+    public ModelAndView listMaps(@ModelAttribute("addmap") String addmap,@ModelAttribute("mapdelete") String mapDeleted) {
         ModelAndView modelAndView = new ModelAndView("maplist");
-
+//            redirectAttributes.addFlashAttribute("mapdelete","mapDeleted");
         AppUser user = appUserService.getAppUser(loggedUser.getLoggedUser());
         modelAndView.addObject("ownedmaps", user.getOwnedMaps());
         modelAndView.addObject("sharedmaps",user.getMapAccessList());
@@ -65,6 +65,10 @@ public class MapController {
         if (addmap.equals("mapadded")) {
             modelAndView.addObject("mapadded", true);
         }
+        if(mapDeleted.equals("mapDeleted")){
+            modelAndView.addObject("mapdeleted",true);
+        }
+
         return modelAndView;
     }
 
@@ -281,6 +285,23 @@ public class MapController {
         } catch (NoAccessToMapException e) {
             mav.addObject("error",true);
             mav.addObject("errorMsg","You have no access to map.");
+        }
+        return mav;
+    }
+
+    @PostMapping("/map/delete/{id}")
+    public ModelAndView deleteMap(@PathVariable("id")Long mapId,final RedirectAttributes redirectAttributes){
+        ModelAndView mav = new ModelAndView("showmap");
+        mav.addObject("notfound", false);
+        mav.addObject("noaccess", false);
+        try {
+            mapService.deleteMap(mapId);
+            mav.setViewName("redirect:/map/list");
+            redirectAttributes.addFlashAttribute("mapdelete","mapDeleted");
+        } catch (MapNotFoundException e) {
+            mav.addObject("notfound", true);
+        } catch (NoAccessToMapException e) {
+            mav.addObject("noaccess", true);
         }
         return mav;
     }
