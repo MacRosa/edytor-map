@@ -3,10 +3,7 @@ package pl.rosa.mapeditor.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.rosa.mapeditor.exceptions.AppUserNotLoggedInException;
-import pl.rosa.mapeditor.exceptions.MapNotFoundException;
-import pl.rosa.mapeditor.exceptions.NoAccessToMapException;
-import pl.rosa.mapeditor.exceptions.UserNotFoundException;
+import pl.rosa.mapeditor.exceptions.*;
 import pl.rosa.mapeditor.login.LoggedUser;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.models.Map;
@@ -153,5 +150,14 @@ public class MapService {
             mapDetailsRepository.deleteById(map.getDocumentId());
         }
         mapRepository.delete(map);
+    }
+
+    @Transactional
+    public void deleteContributor(Long mapId,Long contributionId) throws MapNotFoundException, NoAccessToMapException, InvalidDataException {
+        getMapToEditInfo(mapId);//For exceptions throwing only
+        MapAccess access = mapAccessRepository.findById(contributionId).orElseThrow(InvalidDataException::new);
+        if(access.getMap().getId() != mapId)
+            throw new InvalidDataException();
+        mapAccessRepository.delete(access);
     }
 }

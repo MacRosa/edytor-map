@@ -75,13 +75,39 @@
                             <tr>
                                 <th scope="col"> Name </th>
                                 <th scope="col"> Access </th>
+                                <th scope="col"> Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="mapAccess : ${model.mapAccessList}">
+                            <tr th:each="mapAccess : ${model.mapAccessList}" th:id="'contributorRow' + ${mapAccess.id}">
                                 <td th:text="${mapAccess.appUser.name}"></td>
                                 <td th:if="${mapAccess.accessType} == 'r'">Show</td>
                                 <td th:if="${mapAccess.accessType} == 'w'">Edit</td>
+                                <td>
+                                    <button class="btn btn-danger" data-toggle="modal" th:data-target="'#confirmDeletionContributor' + ${mapAccess.id}">Delete</button>
+                                </td>
+
+                                <div class="modal fade" th:id="'confirmDeletionContributor' + ${mapAccess.id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" >Confirm</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Confirm deletion of this contributor.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary" th:onclick="'deleteContributor(' + ${mapAccess.id} + ');'" data-dismiss="modal" >Delete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </tr>
                         </tbody>
                     </table>
@@ -127,6 +153,33 @@
     <script th:src="@{/js/leaflet.js}"></script>
     <!--suppress ES6ModulesDependencies -->
     <script th:inline="javascript"  th:unless="${notfound || noaccess}">
+
+        /*<![CDATA[*/
+        const mapValue =   /*[[${model.id}]]*/ 0;
+        let contributionDeletionUrl = /*[[@{/map/deletecontributor/}]]*/ '/map/deletecontributor/';
+        let token = /*[[${_csrf.token}]]*/ '';
+        /*]]>*/
+
+        // noinspection JSUnusedLocalSymbols
+        function deleteContributor(id){
+            $("#successView").empty();
+            $("#errorView").empty();
+            $.post({
+                    url : contributionDeletionUrl + mapValue + '/' + id,
+                    data : { '_csrf' : token},
+                    success : function(data){
+                        console.log("returned",data);
+                        if(data === 'success'){
+                            $("#successView").text(data);
+                            $("#contributorRow" + id).remove();
+                        }else{
+                            $("#errorView").text(data);
+                        }
+                    }
+                });
+        }
+
+
         window.onload = function(){
             /*<![CDATA[*/
             let mapValue =   /*[[${model.id}]]*/ 0;
@@ -160,11 +213,11 @@
                     });
                 return false;
             });
+
             let imageBounds = [ [0, 0], [500, 500] ];
             let overlay = L.imageOverlay(mapUrl+mapValue,imageBounds);
             overlay.addTo(myMap);
             overlay.on('load',function() {
-                console.log(this._image.naturalWidth);
                 overlay.setBounds([ [0,0], [this._image.naturalHeight,this._image.naturalWidth] ]);
             });
 

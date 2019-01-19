@@ -8,10 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pl.rosa.mapeditor.exceptions.AppUserNotLoggedInException;
-import pl.rosa.mapeditor.exceptions.MapNotFoundException;
-import pl.rosa.mapeditor.exceptions.NoAccessToMapException;
-import pl.rosa.mapeditor.exceptions.UserNotFoundException;
+import pl.rosa.mapeditor.exceptions.*;
 import pl.rosa.mapeditor.login.LoggedUser;
 import pl.rosa.mapeditor.models.AppUser;
 import pl.rosa.mapeditor.models.Map;
@@ -304,5 +301,20 @@ public class MapController {
             mav.addObject("noaccess", true);
         }
         return mav;
+    }
+
+    @PostMapping("/map/deletecontributor/{mapid}/{contribid}")
+    @ResponseBody
+    public String deleteContributor(@PathVariable("mapid")Long mapId,@PathVariable("contribid")Long contributionId){
+        try {
+            mapService.deleteContributor(mapId,contributionId);
+            return "success";
+        } catch (MapNotFoundException e) {
+            return "map not found";
+        } catch (NoAccessToMapException e) {
+            return "no access to map";
+        } catch (InvalidDataException e) {
+            return "invalid data";
+        }
     }
 }
