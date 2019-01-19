@@ -116,4 +116,11 @@ public class MapService {
     public List<Map> getPublicMapsByUser(Long userId){
         return mapRepository.findByOwnerIdAndVisibility(userId,"public");
     }
+
+    public Map getMapToEditInfo(Long mapId) throws MapNotFoundException, NoAccessToMapException {
+        Map map = mapRepository.findById(mapId).orElseThrow(MapNotFoundException::new);
+        if(!currentUserIsOwner(map))
+            throw new NoAccessToMapException();
+        return map;
+    }
 }

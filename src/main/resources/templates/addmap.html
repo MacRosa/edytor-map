@@ -10,46 +10,7 @@
         <div th:replace="fragments/navbar :: navbar" ></div>
         <div class="container mt-5">
             <h2>Create new map</h2>
-            <div class="container mt-sm-5">
-                <!--/*@thymesVar id="model" type="pl.rosa.mapeditor.viewmodels.MapViewModel"*/-->
-                <form th:action="@{/map/add}" method="post" th:object="${model}" class="form-horizontal" >
-                    <div class="alert alert-danger" th:if="${#fields.hasErrors()}">
-                        <strong>There were errors in the form!</strong>
-                        <ul>
-                            <li th:each="e : ${#fields.errors('${model}')}" th:text="${e}"></li>
-                        </ul>
-                    </div>
-
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">Name: </label>
-                        <div class="col-sm-10">
-                            <input class="form-control" name="name" th:field="*{name}" type="text" title="name"/>
-                            <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">Visibility: </label>
-                        <div class="col-sm-10">
-                            <select class="form-control" title="visibility" th:field="*{visibility}">
-                                <option value="private">Private</option>
-                                <option value="nonpublic">Non-public</option>
-                                <option value="public">Public</option>
-                            </select>
-                            <span class="text-danger" th:if="${#fields.hasErrors('visibility')}" th:errors="*{visibility}"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="descriptionArea">Description:</label>
-                        <textarea class="form-control" id="descriptionArea" th:field="*{description}" rows="3"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <button class="btn btn-primary" type="submit">Create</button>
-                    </div>
-                </form>
-            </div>
+            <div th:replace="fragments/mapfields :: mapfields('Add map','/map/add')"></div>
         </div>
     </body>
     <div th:replace="fragments/scripts :: scripts"></div>
